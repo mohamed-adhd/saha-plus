@@ -5,8 +5,12 @@ import { useEffect, useRef, useState } from "react";
 export default function Home() {
   const panelRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const filmTrackRef = useRef<HTMLElement>(null);
+  const filmVideoRef = useRef<HTMLVideoElement>(null);
   const [registering, setRegistering] = useState(false);
   const [enteredHome, setEnteredHome] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [panelMotion, setPanelMotion] = useState(false);
   const motionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -20,6 +24,51 @@ export default function Home() {
   useEffect(() => () => {
     if (motionTimer.current) clearTimeout(motionTimer.current);
   }, []);
+
+  useEffect(() => {
+    if (!enteredHome) return;
+    const track = filmTrackRef.current;
+    const video = filmVideoRef.current;
+    if (!track || !video) return;
+
+    let frame = 0;
+    let lastUiProgress = -1;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updateVideoFrame = () => {
+      frame = 0;
+      const trackTop = track.getBoundingClientRect().top;
+      const scrollDistance = Math.max(track.offsetHeight - window.innerHeight, 1);
+      const progress = reduceMotion.matches
+        ? 0
+        : Math.max(0, Math.min(1, -trackTop / scrollDistance));
+
+      if (video.readyState >= 1 && Number.isFinite(video.duration)) {
+        const targetTime = progress * video.duration;
+        if (Math.abs(video.currentTime - targetTime) > 0.035) video.currentTime = targetTime;
+      }
+
+      const roundedProgress = Math.round(progress * 100);
+      if (roundedProgress !== lastUiProgress) {
+        lastUiProgress = roundedProgress;
+        setScrollProgress(roundedProgress);
+      }
+    };
+    const requestUpdate = () => {
+      if (!frame) frame = requestAnimationFrame(updateVideoFrame);
+    };
+
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    reduceMotion.addEventListener("change", requestUpdate);
+    requestUpdate();
+
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+      reduceMotion.removeEventListener("change", requestUpdate);
+    };
+  }, [enteredHome]);
 
   useEffect(() => {
     const panel = panelRef.current;
@@ -140,7 +189,7 @@ export default function Home() {
           <nav aria-label="Main menu">
             <a className="rail-link active" href="#overview" aria-label="Overview" title="Overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Overview</span></a>
             <a className="rail-link" href="#wellbeing" aria-label="Your body" title="Your body"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><path d="M8 21v-5l-2-4 2-4h8l2 4-2 4v5M8 12h8M9 16h6"/></svg><span>Your body</span></a>
-            <a className="rail-link" href="#journey" aria-label="Care journey" title="Care journey"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2M8 2.8l-2 2M16 2.8l2 2"/></svg><span>Care journey</span></a>
+            <a className="rail-link" href="#wellbeing" aria-label="Body scan" title="Body scan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v16M19 4v16M8 7h8M8 12h8M8 17h8"/></svg><span>Body scan</span></a>
             <a className="rail-link" href="#profile" aria-label="My profile" title="My profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.7-3.2 3-5 6.5-5s5.8 1.8 6.5 5"/></svg><span>My profile</span></a>
           </nav>
           <button className="rail-link rail-signout" type="button" aria-label="Sign out" title="Sign out" onClick={() => setEnteredHome(false)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10M14 8l4 4-4 4M8 12h10"/></svg><span>Sign out</span></button>
@@ -148,37 +197,30 @@ export default function Home() {
         <div className="dashboard-scroll">
           <section className="dashboard-intro" id="overview">
             <p className="home-eyebrow">YOUR WELLNESS SPACE</p>
-            <h1>A clearer view<br /><em>of your wellbeing.</em></h1>
-            <p className="home-intro">Get to know your body, one step at a time.</p>
+            <h1>Your body,<br /><em>in focus.</em></h1>
+            <p className="home-intro">Scroll to move through a guided view from head to toe.</p>
             <a className="scroll-cue" href="#wellbeing"><span>SCROLL TO EXPLORE</span><b aria-hidden="true">↓</b></a>
           </section>
-          <section className="story-layout" id="wellbeing" aria-label="Your body, in focus">
-            <div className="story-chapters">
-              <article className="story-chapter">
-                <span className="chapter-number">01 / A CLOSER LOOK</span>
-                <h2>Your body,<br /><em>in focus.</em></h2>
-                <p>A guided visual introduction to the remarkable systems that work together every day.</p>
-              </article>
-              <article className="story-chapter" id="journey">
-                <span className="chapter-number">02 / UNDERSTAND</span>
-                <h2>See how it<br /><em>all connects.</em></h2>
-                <p>As you move through the story, the view will reveal more of the human body.</p>
-              </article>
-              <article className="story-chapter" id="profile">
-                <span className="chapter-number">03 / YOUR JOURNEY</span>
-                <h2>Knowledge is<br /><em>a first step.</em></h2>
-                <p>Explore at your own pace. Your personal wellness space is here whenever you need it.</p>
-              </article>
-            </div>
-            <div className="story-stage-wrap">
-              <div className="story-stage" aria-label="Anatomy video will appear here">
-                <div className="stage-orbit stage-orbit-one" /><div className="stage-orbit stage-orbit-two" />
-                <div className="stage-person" aria-hidden="true"><span className="person-head"/><span className="person-torso"/><span className="person-arm person-arm-left"/><span className="person-arm person-arm-right"/><span className="person-leg person-leg-left"/><span className="person-leg person-leg-right"/></div>
-                <div className="stage-caption"><span className="stage-live-dot"/> ANATOMY FILM · COMING SOON</div>
-                <p className="stage-note">Your body, brought<br />to life as you scroll.</p>
-              </div>
+          <section className="film-scroll-track" id="wellbeing" ref={filmTrackRef} aria-label="Scroll-controlled head-to-toe anatomy film">
+            <div className="story-stage">
+              <video
+                ref={filmVideoRef}
+                className={`anatomy-video${videoReady ? " is-ready" : ""}`}
+                src="/media/anatomy-scroll.mp4"
+                muted
+                playsInline
+                preload="metadata"
+                aria-label="Scroll to move through the male anatomy film from head to toe"
+                onLoadedMetadata={(event) => setVideoReady(Number.isFinite(event.currentTarget.duration))}
+                onError={() => setVideoReady(false)}
+              />
+              {!videoReady && <div className="film-placeholder" role="status"><span className="placeholder-mark" aria-hidden="true">＋</span><span className="stage-caption">ANATOMY FILM</span><strong>Scroll to move<br />from head to toe</strong><span className="placeholder-help">Your generated video will appear here.</span></div>}
+              <div className="stage-progress" aria-hidden="true"><span>HEAD</span><div className="progress-track"><i style={{ transform: `scaleY(${scrollProgress / 100})` }} /></div><span>FEET</span></div>
+              <div className="film-progress-accessible" role="progressbar" aria-label="Body scan progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={scrollProgress} />
+              <span className="stage-caption stage-instruction">SCROLL TO MOVE THROUGH THE SCAN</span>
             </div>
           </section>
+          <footer className="dashboard-footer" id="profile"><span>SAHA PLUS · YOUR WELLNESS SPACE</span><span>Take your time. Move at your own pace.</span></footer>
         </div>
       </main>
     );

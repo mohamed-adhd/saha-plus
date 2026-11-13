@@ -108,9 +108,15 @@
 - Added responsive rail and story-stage layouts.
 - Files changed: `src/app/page.tsx`, `src/app/globals.css`.
 
+### Scroll-scrubbed head-to-toe anatomy film
+
+- Replaced the copy-led scroll chapters with a tall scroll track and a pinned portrait video frame; page scroll position now scrubs the video from its first frame to its last.
+- Added a head-to-feet progress marker, a reduced-motion behavior that holds the opening frame, and a fallback until `public/media/anatomy-scroll.mp4` is supplied.
+- Files changed: `src/app/page.tsx`, `src/app/globals.css`.
+
 ## Verification
 
-- `npm run build` completed successfully after the scroll-story dashboard changes (Next.js compile, lint, type validation, and static page generation passed).
+- `npm run build` completed successfully after the scroll-scrubbed video UI changes (Next.js compile, lint, type validation, and static page generation passed).
 
 ## Push log
 
