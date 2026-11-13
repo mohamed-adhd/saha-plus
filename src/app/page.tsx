@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
+import DashboardUI from "../components/DashboardUI";
 
 const BodyScene = dynamic(() => import("../components/BodyScene"), {
   ssr: false,
@@ -159,14 +160,15 @@ export default function Home() {
           <button className="rail-link rail-signout" type="button" aria-label="Sign out" title="Sign out" onClick={() => setEnteredHome(false)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10M14 8l4 4-4 4M8 12h10"/></svg><span>Sign out</span></button>
         </aside>
         <nav ref={bodyProgressRef} className="body-zone-progress" aria-label="Body zones">
-          <a data-body-zone href="#head-mind" aria-label="Go to Head and Mind"><i aria-hidden="true"/><span>HEAD</span></a>
-          <a data-body-zone href="#chest-heart" aria-label="Go to Chest and Heart"><i aria-hidden="true"/><span>CHEST</span></a>
-          <a data-body-zone href="#core-digestion" aria-label="Go to Core and Digestion"><i aria-hidden="true"/><span>CORE</span></a>
-          <a data-body-zone href="#legs-strength" aria-label="Go to Legs and Strength"><i aria-hidden="true"/><span>LEGS</span></a>
-          <a data-body-zone href="#finale" aria-label="Go to Finale"><i aria-hidden="true"/><span>FINALE</span></a>
+          <a data-body-zone="head-mind" href="#head-mind" aria-label="Go to Head and Mind" title="Head and mind"><i aria-hidden="true"/><span>HEAD · Mind</span></a>
+          <a data-body-zone="chest-heart" href="#chest-heart" aria-label="Go to Chest and Heart" title="Chest and heart"><i aria-hidden="true"/><span>CHEST · Heart</span></a>
+          <a data-body-zone="core-digestion" href="#core-digestion" aria-label="Go to Core and Digestion" title="Core and digestion"><i aria-hidden="true"/><span>CORE · Digestion</span></a>
+          <a data-body-zone="legs-strength" href="#legs-strength" aria-label="Go to Legs and Strength" title="Legs and strength"><i aria-hidden="true"/><span>LEGS · Strength</span></a>
+          <a data-body-zone="finale" href="#finale" aria-label="Go to Finale" title="Finale"><i aria-hidden="true"/><span>FINALE</span></a>
         </nav>
         <div className="body-atlas-ring" aria-hidden="true" />
         <BodyScene progressRef={bodyProgressRef} controlsRef={bodySceneControlsRef} backToTopRef={bodyBackTopRef} />
+        <DashboardUI progressRef={bodyProgressRef} />
         <button ref={bodyBackTopRef} className="body-back-top" type="button" aria-label="Back to top" tabIndex={-1} onClick={() => bodySceneControlsRef.current?.goToTop()}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" /></svg><span>Back to top</span>
         </button>
