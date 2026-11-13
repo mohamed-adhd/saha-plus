@@ -61,6 +61,13 @@
 - Preserved the plus canvas drawing implementation and symbol style.
 - Files changed: `src/app/page.tsx`, `src/app/globals.css`.
 
+### Transition motion adjustment
+
+- Kept the welcome panel stable in shape while it slides with a subtle blur.
+- Moved the brief damped shake to the plus-sign canvas layer; it settles back to its resting position.
+- Kept the plus rendering and styling unchanged.
+- Files changed: `src/app/page.tsx`, `src/app/globals.css`.
+
 ## Verification
 
 - `npm run build` was started; record the final result here when available.

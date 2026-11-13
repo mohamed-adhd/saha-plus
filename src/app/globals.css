@@ -8,9 +8,11 @@ html, body { min-height: 100%; }
 body { margin: 0; color: var(--ink); background: #f7f9f6; font-family: Arial, Helvetica, sans-serif; }
 a { color: inherit; text-decoration: none; }
 .login-shell { min-height: 100svh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); overflow: hidden; background: #fff; }
-.welcome-panel { min-width: 0; min-height: 100svh; position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; padding: 42px 54px 32px; color: #f4f8f1; background: #245a3c; transition: transform 780ms cubic-bezier(.22,.78,.22,1); will-change: transform; }
+.welcome-panel { min-width: 0; min-height: 100svh; position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; padding: 42px 54px 32px; color: #f4f8f1; background: #245a3c; transition: transform 780ms cubic-bezier(.22,.78,.22,1), filter 780ms cubic-bezier(.22,.78,.22,1); will-change: transform, filter; }
 .welcome-panel::before { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(145deg, rgba(255,255,255,.045), transparent 48%), radial-gradient(ellipse at 50% 55%, rgba(108, 157, 105, .14), transparent 70%); }
 .plus-canvas { position: absolute; z-index: -1; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.plus-canvas.signs-in-motion { animation: signs-sway 880ms cubic-bezier(.22,.78,.22,1) both; }
+@keyframes signs-sway { 0% { transform: translateX(0) rotate(0); } 15% { transform: translateX(-5px) rotate(-1deg); } 32% { transform: translateX(7px) rotate(1.35deg); } 50% { transform: translateX(-5px) rotate(-.9deg); } 68% { transform: translateX(3px) rotate(.55deg); } 84% { transform: translateX(-1px) rotate(-.2deg); } 100% { transform: translateX(0) rotate(0); } }
 .brand { position: relative; z-index: 1; display: inline-flex; align-items: center; width: max-content; gap: 2px; font-size: 20px; font-weight: 700; letter-spacing: -.7px; }
 .brand > span:last-child, .mobile-brand > span:last-child { color: #c6d9ac; font-weight: 400; }
 .brand-symbol { display: grid; place-items: center; width: 27px; height: 27px; margin-right: 7px; border: 1px solid rgba(255,255,255,.55); border-radius: 50%; font-size: 19px; font-weight: 300; }
@@ -23,10 +25,8 @@ a { color: inherit; text-decoration: none; }
 .panel-footer { position: relative; z-index: 1; color: rgba(239,255,245,.64); }
 .footer-mark { font-family: Georgia, serif; font-size: 12px; letter-spacing: 1px; }
 .form-panel { min-width: 0; min-height: 100svh; position: relative; display: flex; flex-direction: column; padding: 38px clamp(36px, 7vw, 105px) 26px; background: #f5f7f0; transition: transform 780ms cubic-bezier(.22,.78,.22,1), background-color 500ms ease; }
-.is-registering .welcome-panel { transform: translateX(100%); }
+.is-registering .welcome-panel { transform: translateX(100%); filter: blur(3px); }
 .is-registering .form-panel { transform: translateX(-100%); background: #fff; }
-.welcome-panel.panel-in-motion { animation: gravity-sway 880ms cubic-bezier(.22,.78,.22,1) both; }
-@keyframes gravity-sway { 0% { rotate: 0deg; } 18% { rotate: 1.15deg; } 38% { rotate: -1.35deg; } 58% { rotate: .75deg; } 78% { rotate: -.35deg; } 100% { rotate: 0deg; } }
 .form-top { display: flex; justify-content: space-between; align-items: center; color: #657267; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; }
 .form-kicker { display: flex; align-items: center; gap: 9px; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #608c61; box-shadow: 0 0 0 4px rgba(96,140,97,.12); }
@@ -73,4 +73,4 @@ form { display: flex; flex-direction: column; }
 @media (max-width: 520px) { .welcome-panel { padding: 20px 14px; } .brand { font-size: 16px; } .brand-symbol { width: 23px; height: 23px; margin-right: 4px; } .welcome-copy h1 { font-size: 30px; } .welcome-copy p { font-size: 11px; line-height: 1.5; } .form-panel { padding-right: 12px; padding-left: 12px; } .auth-view, .login-view, .register-view { width: calc(100% - 24px); } .form-content h2 { font-size: 32px; } .form-intro { font-size: 12px; } .form-panel form input[type="email"], .form-panel form input[type="password"], .form-panel form input[type="text"] { height: 44px; padding: 0 9px; font-size: 11px; } .form-panel form button { min-height: 45px; padding: 0 10px; font-size: 11px; } .signup { font-size: 10px; } .privacy-note { font-size: 9px; } }
 @media (max-width: 430px) { .welcome-panel { min-height: 220px; } .form-panel { min-height: calc(100svh - 220px); } .welcome-copy p { max-width: 300px; } .eyebrow { font-size: 9px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }
-@media (prefers-reduced-motion: reduce) { .welcome-panel, .form-panel, .auth-view, .auth-view.is-visible { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+@media (prefers-reduced-motion: reduce) { .welcome-panel, .form-panel, .auth-view, .auth-view.is-visible, .plus-canvas.signs-in-motion { transition-duration: .01ms !important; animation-duration: .01ms !important; } }

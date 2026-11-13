@@ -97,8 +97,8 @@ export default function Home() {
 
   return (
     <main className={`login-shell${registering ? " is-registering" : ""}`}>
-      <section ref={panelRef} className={`welcome-panel${panelMotion ? " panel-in-motion" : ""}`} aria-label="Saha Plus">
-        <canvas ref={canvasRef} className="plus-canvas" aria-hidden="true" />
+      <section ref={panelRef} className="welcome-panel" aria-label="Saha Plus">
+        <canvas ref={canvasRef} className={`plus-canvas${panelMotion ? " signs-in-motion" : ""}`} aria-hidden="true" />
         <a className="brand" href="#home" aria-label="Saha Plus home"><span className="brand-symbol">+</span> saha<span>plus</span></a>
         <div className="welcome-copy">
           <span className="eyebrow">YOUR WELLNESS, IN BALANCE</span>
