@@ -84,6 +84,16 @@ export default function Home() {
           context.stroke();
         }
       }
+
+      const sweep = ((time % 2800) / 2800) * (width + 96) - 48;
+      const beam = context.createLinearGradient(sweep - 48, 0, sweep + 48, 0);
+      beam.addColorStop(0, "rgba(193, 239, 205, 0)");
+      beam.addColorStop(0.5, "rgba(193, 239, 205, 0.16)");
+      beam.addColorStop(1, "rgba(193, 239, 205, 0)");
+      context.fillStyle = beam;
+      context.fillRect(sweep - 48, 0, 96, height);
+      context.fillStyle = "rgba(213, 248, 219, 0.72)";
+      context.fillRect(sweep - 1, 0, 2, height);
     };
     frame = requestAnimationFrame(draw);
 
@@ -97,7 +107,7 @@ export default function Home() {
 
   return (
     <main className={`login-shell${registering ? " is-registering" : ""}`}>
-      <section ref={panelRef} className="welcome-panel" aria-label="Saha Plus">
+      <section ref={panelRef} className={`welcome-panel${panelMotion ? " panel-in-motion" : ""}`} aria-label="Saha Plus">
         <canvas ref={canvasRef} className={`plus-canvas${panelMotion ? " signs-in-motion" : ""}`} aria-hidden="true" />
         <a className="brand" href="#home" aria-label="Saha Plus home"><span className="brand-symbol">+</span> saha<span>plus</span></a>
         <div className="welcome-copy">

@@ -25,8 +25,10 @@ a { color: inherit; text-decoration: none; }
 .panel-footer { position: relative; z-index: 1; color: rgba(239,255,245,.64); }
 .footer-mark { font-family: Georgia, serif; font-size: 12px; letter-spacing: 1px; }
 .form-panel { min-width: 0; min-height: 100svh; position: relative; display: flex; flex-direction: column; padding: 38px clamp(36px, 7vw, 105px) 26px; background: #f5f7f0; transition: transform 780ms cubic-bezier(.22,.78,.22,1), background-color 500ms ease; }
-.is-registering .welcome-panel { transform: translateX(100%); filter: blur(3px); }
+.is-registering .welcome-panel { transform: translateX(100%); }
 .is-registering .form-panel { transform: translateX(-100%); background: #fff; }
+.welcome-panel.panel-in-motion { animation: panel-slide-soften 900ms ease-out both; }
+@keyframes panel-slide-soften { 0% { filter: blur(0); } 38% { filter: blur(3px); } 100% { filter: blur(0); } }
 .form-top { display: flex; justify-content: space-between; align-items: center; color: #657267; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; }
 .form-kicker { display: flex; align-items: center; gap: 9px; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #608c61; box-shadow: 0 0 0 4px rgba(96,140,97,.12); }

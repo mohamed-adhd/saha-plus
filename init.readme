@@ -75,6 +75,13 @@
 - Left the plus canvas implementation and panel appearance unchanged.
 - Files changed: `src/app/globals.css`, `src/app/layout.tsx`.
 
+### Plus-field sweep and transition blur fix
+
+- Added a repeating vertical light pulse that sweeps from edge to edge within the existing plus canvas.
+- Changed the panel blur to a temporary transition animation that clears after switching in either direction.
+- Kept the plus drawing and interaction behavior otherwise intact.
+- Files changed: `src/app/page.tsx`, `src/app/globals.css`.
+
 ## Verification
 
 - `npm run build` was started; record the final result here when available.
