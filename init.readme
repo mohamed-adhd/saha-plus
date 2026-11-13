@@ -15,6 +15,14 @@
 - Added reduced-motion handling and a compact mobile layout.
 - Files changed: `src/app/page.tsx`, `src/app/globals.css`.
 
+### Plus field refinement
+
+- Increased the field to 260 independently positioned plus signs.
+- Added varied, continuous floating paths so the signs drift rather than sit on a grid.
+- Plus signs grow as the pointer approaches and shift in response to pointer movement; pointer-down ripple remains.
+- Kept the existing login layout and styling intact for this refinement.
+- Files changed: `src/app/page.tsx`, `src/app/globals.css`.
+
 ## Verification
 
 - `npm run build` was started; record the final result here when available.

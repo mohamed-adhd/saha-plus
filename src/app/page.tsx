@@ -2,12 +2,21 @@
 
 import { PointerEvent, useState } from "react";
 
-const marks = Array.from({ length: 90 }, (_, index) => ({
-  id: index,
-  x: (index % 10) * 10 + 5,
-  y: Math.floor(index / 10) * 10 + 5,
-  delay: -((index * 7) % 90) / 10,
-}));
+const marks = Array.from({ length: 260 }, (_, index) => {
+  const random = (seed: number) => {
+    const value = Math.sin((index + 1) * seed * 127.1) * 43758.5453;
+    return value - Math.floor(value);
+  };
+
+  return {
+    id: index,
+    x: random(1.17) * 100,
+    y: random(2.39) * 100,
+    delay: -random(3.71) * 24,
+    duration: 15 + random(5.13) * 20,
+    size: 28 + random(7.19) * 22,
+  };
+});
 
 export default function Home() {
   const [pointer, setPointer] = useState({ x: -1000, y: -1000 });
@@ -15,7 +24,7 @@ export default function Home() {
 
   function movePointer(event: PointerEvent<HTMLElement>) {
     const bounds = event.currentTarget.getBoundingClientRect();
-    setPointer({ x: event.clientX - bounds.left, y: event.clientY - bounds.top });
+    setPointer({ x: ((event.clientX - bounds.left) / bounds.width) * 100, y: ((event.clientY - bounds.top) / bounds.height) * 100 });
   }
 
   function startRipple(event: PointerEvent<HTMLElement>) {
@@ -35,8 +44,11 @@ export default function Home() {
                 left: `${mark.x}%`,
                 top: `${mark.y}%`,
                 animationDelay: `${mark.delay}s`,
-                "--dx": `${Math.max(-1, Math.min(1, (mark.x * 3.2 - pointer.x) / 90)) * 13}px`,
-                "--dy": `${Math.max(-1, Math.min(1, (mark.y * 5.2 - pointer.y) / 90)) * 13}px`,
+                animationDuration: `${mark.duration}s`,
+                fontSize: `${mark.size}px`,
+                "--near": `${Math.max(0, 1 - Math.hypot((mark.x - pointer.x) * 3.4, (mark.y - pointer.y) * 5.2) / 125)}`,
+                "--dx": `${Math.max(-1, Math.min(1, (mark.x - pointer.x) / 14)) * 19}px`,
+                "--dy": `${Math.max(-1, Math.min(1, (mark.y - pointer.y) / 14)) * 19}px`,
               } as React.CSSProperties}
             >+</span>
           ))}
