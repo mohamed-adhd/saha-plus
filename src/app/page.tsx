@@ -218,6 +218,7 @@ export default function Home() {
               <div className="stage-progress" aria-hidden="true"><span>HEAD</span><div className="progress-track"><i style={{ transform: `scaleY(${scrollProgress / 100})` }} /></div><span>FEET</span></div>
               <div className="film-progress-accessible" role="progressbar" aria-label="Body scan progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={scrollProgress} />
               <span className="stage-caption stage-instruction">SCROLL TO MOVE THROUGH THE SCAN</span>
+              <span className="watermark-mask" aria-hidden="true" />
             </div>
           </section>
           <footer className="dashboard-footer" id="profile"><span>SAHA PLUS · YOUR WELLNESS SPACE</span><span>Take your time. Move at your own pace.</span></footer>

@@ -114,9 +114,16 @@
 - Added a head-to-feet progress marker, a reduced-motion behavior that holds the opening frame, and a fallback until `public/media/anatomy-scroll.mp4` is supplied.
 - Files changed: `src/app/page.tsx`, `src/app/globals.css`.
 
+### Generated anatomy recording integration
+
+- Added the supplied Dreamina recording at `public/media/anatomy-scroll.mp4`, transcoded to H.264 Main/yuv420p with fast-start metadata (1248×704, 5 seconds, 863 KB).
+- Matched the desktop player to the source's 39:22 aspect ratio and added a site-colored bottom-right UI panel over the watermark; mobile uses a centered portrait crop.
+- The source shows the full male figure throughout rather than a head-to-toe camera pan, so scroll scrubs its available 5-second motion.
+- Files changed: `public/media/anatomy-scroll.mp4`, `src/app/globals.css`, `init.readme`.
+
 ## Verification
 
-- `npm run build` completed successfully after the scroll-scrubbed video UI changes (Next.js compile, lint, type validation, and static page generation passed).
+- `npm run build` completed successfully after the supplied video integration (Next.js compile, lint, type validation, and static page generation passed).
 
 ## Push log
 
