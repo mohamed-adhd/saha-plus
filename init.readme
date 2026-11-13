@@ -121,9 +121,16 @@
 - The source shows the full male figure throughout rather than a head-to-toe camera pan, so scroll scrubs its available 5-second motion.
 - Files changed: `public/media/anatomy-scroll.mp4`, `src/app/globals.css`, `init.readme`.
 
+### Video playback compatibility fix
+
+- Added a VP9/WebM source before the H.264/MP4 fallback, enabled eager media loading, and revealed the player on decoded data/can-play events.
+- Added a distinct visible failure message if neither source loads.
+- Verified the optimized build and confirmed the rebuilt local server returns `200 video/webm` and `200 video/mp4` with range support.
+- Files changed: `public/media/anatomy-scroll.webm`, `src/app/page.tsx`, `init.readme`.
+
 ## Verification
 
-- `npm run build` completed successfully after the supplied video integration (Next.js compile, lint, type validation, and static page generation passed).
+- `npm run build` completed successfully after the video playback compatibility fix (Next.js compile, lint, type validation, and static page generation passed).
 
 ## Push log
 

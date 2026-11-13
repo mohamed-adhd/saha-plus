@@ -10,6 +10,7 @@ export default function Home() {
   const [registering, setRegistering] = useState(false);
   const [enteredHome, setEnteredHome] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [panelMotion, setPanelMotion] = useState(false);
   const motionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -206,15 +207,31 @@ export default function Home() {
               <video
                 ref={filmVideoRef}
                 className={`anatomy-video${videoReady ? " is-ready" : ""}`}
-                src="/media/anatomy-scroll.mp4"
                 muted
                 playsInline
-                preload="metadata"
+                preload="auto"
                 aria-label="Scroll to move through the male anatomy film from head to toe"
-                onLoadedMetadata={(event) => setVideoReady(Number.isFinite(event.currentTarget.duration))}
-                onError={() => setVideoReady(false)}
-              />
-              {!videoReady && <div className="film-placeholder" role="status"><span className="placeholder-mark" aria-hidden="true">＋</span><span className="stage-caption">ANATOMY FILM</span><strong>Scroll to move<br />from head to toe</strong><span className="placeholder-help">Your generated video will appear here.</span></div>}
+                onLoadedMetadata={(event) => {
+                  const player = event.currentTarget;
+                  const track = filmTrackRef.current;
+                  if (Number.isFinite(player.duration)) {
+                    setVideoReady(true);
+                    setVideoFailed(false);
+                    if (track) {
+                      const distance = Math.max(track.offsetHeight - window.innerHeight, 1);
+                      const progress = Math.max(0, Math.min(1, -track.getBoundingClientRect().top / distance));
+                      player.currentTime = progress * player.duration;
+                    }
+                  }
+                }}
+                onLoadedData={() => { setVideoReady(true); setVideoFailed(false); }}
+                onCanPlay={() => { setVideoReady(true); setVideoFailed(false); }}
+                onError={() => { setVideoReady(false); setVideoFailed(true); }}
+              >
+                <source src="/media/anatomy-scroll.webm" type="video/webm; codecs=vp9" />
+                <source src="/media/anatomy-scroll.mp4" type="video/mp4" />
+              </video>
+              {!videoReady && <div className="film-placeholder" role="status"><span className="placeholder-mark" aria-hidden="true">＋</span><span className="stage-caption">ANATOMY FILM</span><strong>{videoFailed ? <>The film<br />couldn’t load.</> : <>Scroll to move<br />from head to toe</>}</strong><span className="placeholder-help">{videoFailed ? "Refresh the page to try again." : "Loading your anatomy film…"}</span></div>}
               <div className="stage-progress" aria-hidden="true"><span>HEAD</span><div className="progress-track"><i style={{ transform: `scaleY(${scrollProgress / 100})` }} /></div><span>FEET</span></div>
               <div className="film-progress-accessible" role="progressbar" aria-label="Body scan progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={scrollProgress} />
               <span className="stage-caption stage-instruction">SCROLL TO MOVE THROUGH THE SCAN</span>
