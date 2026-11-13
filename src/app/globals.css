@@ -22,30 +22,34 @@ a { color: inherit; text-decoration: none; }
 .panel-footer, .form-footer { display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 700; letter-spacing: 1.4px; }
 .panel-footer { position: relative; z-index: 1; color: rgba(239,255,245,.64); }
 .footer-mark { font-family: Georgia, serif; font-size: 12px; letter-spacing: 1px; }
-.form-panel { min-height: 100svh; display: flex; flex-direction: column; padding: 42px clamp(36px, 7vw, 105px) 28px; }
-.form-top { display: flex; justify-content: space-between; align-items: center; color: #89958f; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; }
-.form-top a, .password-label a { color: var(--green); font-size: 12px; font-weight: 500; letter-spacing: 0; }
-.form-content { width: min(390px, 100%); margin: auto; padding: 62px 0; }
+.form-panel { min-height: 100svh; display: flex; flex-direction: column; padding: 38px clamp(36px, 7vw, 105px) 26px; background: #fff; }
+.form-top { display: flex; justify-content: space-between; align-items: center; color: #758078; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; }
+.form-top a, .password-label a { color: var(--green); font-size: 12px; font-weight: 600; letter-spacing: 0; text-underline-offset: 3px; }
+.form-content { width: min(390px, 100%); margin: auto; padding: 52px 0; }
 .mobile-brand { display: none; }
 .form-eyebrow { color: #4c9273; }
-.form-content h2 { margin: 14px 0 8px; font-family: Georgia, 'Times New Roman', serif; font-size: 42px; font-weight: 400; letter-spacing: -.8px; }
-.form-intro { margin: 0 0 34px; color: #77847e; font-size: 13px; line-height: 1.7; }
+.form-content h2 { margin: 12px 0 9px; color: #20372b; font-family: Georgia, 'Times New Roman', serif; font-size: 44px; font-weight: 400; line-height: 1.08; }
+.form-intro { max-width: 340px; margin: 0 0 30px; color: #68766d; font-size: 14px; line-height: 1.65; }
 form { display: flex; flex-direction: column; }
-form > label, .password-label label { margin-bottom: 9px; font-size: 12px; font-weight: 700; }
-form input[type="email"], form input[type="password"] { height: 48px; width: 100%; padding: 0 14px; border: 1px solid var(--line); border-radius: 3px; outline: none; color: var(--ink); background: white; font: inherit; font-size: 13px; transition: border-color 160ms, box-shadow 160ms; }
-form input:focus { border-color: #4c9273; box-shadow: 0 0 0 3px rgba(76,146,115,.1); }
-form input::placeholder { color: #aab4af; }
-.password-label { display: flex; justify-content: space-between; align-items: center; margin: 23px 0 9px; }
+.form-panel form > label, .password-label label { margin-bottom: 8px; color: #34483b; font-size: 12px; font-weight: 700; }
+.form-panel form input[type="email"], .form-panel form input[type="password"] { height: 50px; width: 100%; padding: 0 14px; border: 1px solid #d8e1d9; border-radius: 4px; outline: none; color: var(--ink); background: #fcfdfb; font: inherit; font-size: 13px; transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease; }
+.form-panel form input[type="email"]:hover, .form-panel form input[type="password"]:hover { border-color: #a9bcae; }
+.form-panel form input[type="email"]:focus, .form-panel form input[type="password"]:focus { border-color: #397650; background: #fff; box-shadow: 0 0 0 3px rgba(57,118,80,.12); }
+.form-panel form input::placeholder { color: #98a49b; }
+.password-label { display: flex; justify-content: space-between; align-items: center; margin: 21px 0 8px; }
 .password-label label { margin: 0; }
-.remember { display: flex; align-items: center; gap: 9px; margin: 17px 0 23px; color: #64726b; font-size: 12px; cursor: pointer; }
-.remember input { width: 15px; height: 15px; margin: 0; accent-color: var(--green); }
-form button { height: 49px; display: flex; align-items: center; justify-content: space-between; padding: 0 17px; border: 0; border-radius: 3px; color: white; background: var(--green); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: background 160ms; }
-form button:hover { background: #10563f; }
-form button span { font-size: 18px; font-weight: 400; }
-.signup { margin: 24px 0 0; text-align: center; color: #77847e; font-size: 12px; }
+.remember { display: flex; align-items: center; gap: 9px; margin: 16px 0 21px; color: #59685e; font-size: 12px; cursor: pointer; }
+.remember input { width: 16px; height: 16px; margin: 0; accent-color: var(--green); }
+.form-panel form button { min-height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 17px; border: 1px solid #245d3c; border-radius: 4px; color: #fff; background: #276747; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: background 150ms ease, border-color 150ms ease, transform 150ms ease; }
+.form-panel form button:hover { border-color: #1d4e32; background: #1d4e32; }
+.form-panel form button:active { transform: translateY(1px); }
+.form-panel :where(a, button, input):focus-visible { outline: 3px solid rgba(57,118,80,.32); outline-offset: 3px; }
+.form-panel form button:focus-visible { outline-color: #8dbb92; }
+.form-panel form button span { font-size: 18px; font-weight: 400; }
+.signup { margin: 22px 0 0; text-align: center; color: #68766d; font-size: 12px; }
 .signup a { margin-left: 3px; color: var(--green); font-weight: 700; }
 .signup a span { margin-left: 2px; }
-.form-footer { color: #9aa59f; font-size: 8px; letter-spacing: 1.1px; }
+.form-footer { color: #78867c; font-size: 9px; letter-spacing: 1px; }
 .form-footer a:hover, .form-top a:hover, .password-label a:hover { text-decoration: underline; text-underline-offset: 3px; }
 @media (max-width: 760px) { .login-shell { grid-template-columns: 1fr; } .welcome-panel { min-height: 245px; padding: 24px 25px; } .welcome-copy { margin: auto 0; padding: 30px 0 20px; } .welcome-copy h1 { margin: 12px 0 8px; font-size: 38px; } .welcome-copy p { margin: 0; font-size: 12px; } .panel-footer, .form-top { display: none; } .form-panel { min-height: calc(100svh - 245px); padding: 28px 25px 20px; } .form-content { margin: auto; padding: 24px 0 36px; } .form-content h2 { font-size: 36px; } }
 @media (max-width: 430px) { .welcome-panel { min-height: 220px; } .form-panel { min-height: calc(100svh - 220px); } .welcome-copy p { max-width: 300px; } .eyebrow { font-size: 9px; } }
