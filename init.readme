@@ -182,3 +182,23 @@
 - Pushed `4bb60bd` (`Restore body skin and add drag rotation`) to `origin/main`.
 - Pushed `0e3685c` (`Fix anatomy ring layering and finale pullback`) to `origin/main`.
 - Pushed `214f24d` (`Upgrade anatomy model with detailed face`) to `origin/main`.
+
+### Wellness atlas dashboard UI refinement
+
+- Added a shared CSS theme for dark green surfaces, text hierarchy, warm amber highlights, semantic statuses, subtle grain, and a radial background glow.
+- Added five typed mock health metrics with icons, values, units, trend cues, and inline sparklines, plus animated activity rings, a daily wellness score, and streak summary.
+- Added glass region panels with status and regional stats, clickable overview hotspots, improved active navigation labels, and responsive quick-action forms with success toasts.
+- Added mobile horizontal metric/action rows, gentle card and leader-line motion, loading skeletons, focus states, and reduced-motion behavior.
+- Kept `src/components/BodyScene.tsx`, camera/scroll behavior, and model assets unchanged. Mock values are in `src/data/mockHealth.ts`.
+- Files changed: `src/app/globals.css`, `src/app/page.tsx`, `src/components/DashboardUI.tsx`, `src/data/mockHealth.ts`, `CHANGELOG.md`, `init.readme`.
+- Intentionally deferred live health integrations and browser/Lighthouse visual measurements; the app currently uses placeholders and no browser audit was available in this run.
+
+## Latest verification
+
+- `npm run lint` passed with no ESLint warnings or errors.
+- `npx tsc --noEmit` passed.
+- `npm run build` passed, including Next.js compilation, lint/type validation, and static page generation.
+
+## Latest push log
+
+- Pushed `e56ef5d` (`Refine wellness atlas dashboard UI`) to `origin/main`.
