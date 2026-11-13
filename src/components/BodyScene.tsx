@@ -1,7 +1,7 @@
 "use client";
 
 import { Environment, Html, Scroll, ScrollControls, useGLTF, useProgress, useScroll } from "@react-three/drei";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { Suspense, useMemo, useRef, useState, type MutableRefObject, type RefObject } from "react";
 
@@ -23,6 +23,17 @@ const CAMERA_CONFIG = {
   chestRatio: 0.72,
   coreRatio: 0.52,
   feetRatio: 0.035,
+  exposure: 0.9,
+  hemisphereLight: 0.3,
+  keyLight: 1.0,
+  fillLight: 0.35,
+  greenRimLight: 2.1,
+  environmentIntensity: 0.2,
+  rotationSensitivity: 0.006,
+  rotationSmoothing: 8,
+  rotationInertiaDecay: 5,
+  idleReturnDelay: 5000,
+  returnSpeed: 2.5,
 } as const;
 
 type CameraKeyframe = { t: number; y: number; distance: number; label: string };
@@ -45,6 +56,7 @@ const BODY_SECTIONS = [
 
 type BodySceneProps = { progressRef: RefObject<HTMLElement> };
 let modelDiagnosticsLogged = false;
+let appearanceLogged = false;
 
 function smoothKeyframe(progress: number, levels: ModelYLevels): { y: number; distance: number } {
   const frames = CAMERA_KEYFRAMES.map((frame) => ({
@@ -102,9 +114,29 @@ function Model({ levelsRef }: { levelsRef: MutableRefObject<ModelYLevels | null>
         if (sourceHasNormalMap) (material as THREE.MeshStandardMaterial).normalMap = null;
         material.side = THREE.FrontSide;
         if (material instanceof THREE.MeshStandardMaterial) {
-          material.roughness = 0.6;
-          material.metalness = 0;
-          material.envMapIntensity = 0.4;
+          const hasVertexColors = Boolean(mesh.geometry.attributes.color);
+          material.vertexColors = hasVertexColors;
+          if (material.map) {
+            material.map.colorSpace = THREE.SRGBColorSpace;
+            material.map.needsUpdate = true;
+          }
+          if (!material.map && !hasVertexColors && material.color.r > 0.9 && material.color.g > 0.9 && material.color.b > 0.9) {
+            material.color.set("#c9a58a");
+            material.roughness = 0.65;
+            material.metalness = 0;
+            if (!appearanceLogged) {
+              console.info("[Saha Plus] Skin appearance: applied #c9a58a fallback to an untextured, nearly white material.");
+              appearanceLogged = true;
+            }
+          } else if (!appearanceLogged) {
+            console.info("[Saha Plus] Skin appearance: kept the original GLB material and warm vertex colors.", {
+              hasColorMap: Boolean(material.map),
+              hasVertexColors,
+              vertexColorSample: mesh.geometry.attributes.color?.array.slice(0, 4) ?? null,
+            });
+            appearanceLogged = true;
+          }
+          material.envMapIntensity = CAMERA_CONFIG.environmentIntensity;
         }
         if (!mesh.geometry.attributes.normal) mesh.geometry.computeVertexNormals();
         material.needsUpdate = true;
@@ -136,6 +168,111 @@ function Model({ levelsRef }: { levelsRef: MutableRefObject<ModelYLevels | null>
   }, [levelsRef, scene]);
 
   return <primitive object={fittedModel} />;
+}
+
+type DragAxis = "pending" | "rotate" | "scroll";
+type DragState = { active: boolean; pointerId: number; axis: DragAxis; startX: number; startY: number; lastX: number; lastMoveAt: number; startRotation: number; totalX: number };
+
+function ModelRig({ levelsRef, modelRef }: { levelsRef: MutableRefObject<ModelYLevels | null>; modelRef: MutableRefObject<THREE.Group | null> }) {
+  const { gl } = useThree();
+  const scroll = useScroll();
+  const drag = useRef<DragState>({ active: false, pointerId: -1, axis: "pending", startX: 0, startY: 0, lastX: 0, lastMoveAt: 0, startRotation: 0, totalX: 0 });
+  const targetRotation = useRef(0);
+  const velocity = useRef(0);
+  const lastInteractionTime = useRef(0);
+
+  const setCursor = (cursor: string) => {
+    gl.domElement.style.cursor = cursor;
+    if (scroll.el) scroll.el.style.cursor = cursor;
+  };
+  const finishDrag = (event: { stopPropagation: () => void; pointerId: number }, leaving = false) => {
+    event.stopPropagation();
+    const state = drag.current;
+    if (!state.active || state.pointerId !== event.pointerId) return;
+    state.active = false;
+    state.axis = "pending";
+    lastInteractionTime.current = performance.now();
+    setCursor(leaving ? "default" : "grab");
+  };
+
+  useFrame((_, delta) => {
+    const group = modelRef.current;
+    if (!group) return;
+    const state = drag.current;
+    if (!state.active && performance.now() - lastInteractionTime.current >= CAMERA_CONFIG.idleReturnDelay) {
+      velocity.current = 0;
+      const shortest = THREE.MathUtils.euclideanModulo(-group.rotation.y + Math.PI, Math.PI * 2) - Math.PI;
+      if (Math.abs(shortest) < 0.0005) group.rotation.y = 0;
+      else group.rotation.y = THREE.MathUtils.damp(group.rotation.y, group.rotation.y + shortest, CAMERA_CONFIG.returnSpeed, delta);
+      targetRotation.current = group.rotation.y;
+      return;
+    }
+    if (!state.active) {
+      targetRotation.current += velocity.current * delta;
+      velocity.current *= Math.exp(-CAMERA_CONFIG.rotationInertiaDecay * delta);
+    }
+    const difference = THREE.MathUtils.euclideanModulo(targetRotation.current - group.rotation.y + Math.PI, Math.PI * 2) - Math.PI;
+    group.rotation.y = THREE.MathUtils.damp(group.rotation.y, group.rotation.y + difference, CAMERA_CONFIG.rotationSmoothing, delta);
+  });
+
+  return <group
+    ref={modelRef}
+    position={[0, CAMERA_CONFIG.modelHeight / 2, 0]}
+    onPointerOver={() => setCursor("grab")}
+    onPointerOut={() => { if (!drag.current.active) setCursor("default"); }}
+    onPointerDown={(event) => {
+      event.stopPropagation();
+      const now = performance.now();
+      const group = modelRef.current;
+      if (!group) return;
+      targetRotation.current = group.rotation.y;
+      velocity.current = 0;
+      lastInteractionTime.current = now;
+      drag.current = { active: true, pointerId: event.pointerId, axis: "pending", startX: event.clientX, startY: event.clientY, lastX: event.clientX, lastMoveAt: now, startRotation: group.rotation.y, totalX: 0 };
+      (event.target as (EventTarget & { setPointerCapture?: (pointerId: number) => void }) | null)?.setPointerCapture?.(event.pointerId);
+      setCursor("grabbing");
+    }}
+    onPointerMove={(event) => {
+      const state = drag.current;
+      if (!state.active || state.pointerId !== event.pointerId) return;
+      event.stopPropagation();
+      const now = performance.now();
+      const dx = event.clientX - state.lastX;
+      const dt = Math.max((now - state.lastMoveAt) / 1000, 1 / 120);
+      state.lastX = event.clientX;
+      state.totalX = event.clientX - state.startX;
+      state.lastMoveAt = now;
+      lastInteractionTime.current = now;
+      if (state.axis === "pending" && Math.hypot(event.clientX - state.startX, event.clientY - state.startY) >= 7) {
+        state.axis = Math.abs(state.totalX) > Math.abs(event.clientY - state.startY) ? "rotate" : "scroll";
+        if (state.axis === "scroll") {
+          state.active = false;
+          velocity.current = 0;
+          (event.target as (EventTarget & { releasePointerCapture?: (pointerId: number) => void }) | null)?.releasePointerCapture?.(event.pointerId);
+          setCursor("default");
+          return;
+        }
+      }
+      if (state.axis === "rotate") {
+        const previousTarget = targetRotation.current;
+        targetRotation.current = state.startRotation + state.totalX * CAMERA_CONFIG.rotationSensitivity;
+        velocity.current = THREE.MathUtils.clamp((targetRotation.current - previousTarget) / dt, -4, 4);
+      } else if (dx) {
+        velocity.current = 0;
+      }
+    }}
+    onPointerUp={(event) => finishDrag(event)}
+    onPointerCancel={(event) => finishDrag(event, true)}
+    onPointerLeave={(event) => finishDrag(event, true)}
+  >
+    <group position={[0, -CAMERA_CONFIG.modelHeight / 2, 0]}>
+      <Model levelsRef={levelsRef} />
+      <mesh position={[0, CAMERA_CONFIG.modelHeight / 2, 0]}>
+        <boxGeometry args={[2.8, CAMERA_CONFIG.modelHeight + 0.2, 1.2]} />
+        <meshBasicMaterial transparent opacity={0} colorWrite={false} depthWrite={false} />
+      </mesh>
+    </group>
+  </group>;
 }
 
 function SceneCamera({ levelsRef }: { levelsRef: MutableRefObject<ModelYLevels | null> }) {
@@ -223,7 +360,7 @@ function FinaleEffects({ keyLightRef, ringRef, modelRef }: { keyLightRef: Mutabl
   const scroll = useScroll();
   useFrame((_, delta) => {
     const finale = THREE.MathUtils.smoothstep(scroll.offset, 0.83, 0.97);
-    if (keyLightRef.current) keyLightRef.current.intensity = THREE.MathUtils.damp(keyLightRef.current.intensity, 2.1 - finale * 1.2, 2.5, delta);
+    if (keyLightRef.current) keyLightRef.current.intensity = THREE.MathUtils.damp(keyLightRef.current.intensity, CAMERA_CONFIG.keyLight * (1 - finale * 0.55), 2.5, delta);
     if (ringRef.current) ringRef.current.opacity = 0.34 + finale * (0.16 + Math.sin(performance.now() * 0.0017) * 0.08);
     if (modelRef.current) modelRef.current.traverse((object) => {
       const mesh = object as THREE.Mesh;
@@ -238,13 +375,13 @@ function FinaleEffects({ keyLightRef, ringRef, modelRef }: { keyLightRef: Mutabl
 function LightsAndModel({ levelsRef, keyLightRef, ringRef, modelRef }: { levelsRef: MutableRefObject<ModelYLevels | null>; keyLightRef: MutableRefObject<THREE.DirectionalLight | null>; ringRef: MutableRefObject<THREE.MeshBasicMaterial | null>; modelRef: MutableRefObject<THREE.Group | null> }) {
   return <>
     <color attach="background" args={[CAMERA_CONFIG.background]} /><fog attach="fog" args={[CAMERA_CONFIG.background, CAMERA_CONFIG.fogNear, CAMERA_CONFIG.fogFar]} />
-    <hemisphereLight args={["#e1eadc", "#26352c", 1.05]} />
-    <directionalLight ref={keyLightRef} position={[-3, 6, 6]} intensity={2.1} color="#fff1dc" />
-    <pointLight position={[0, 3.5, 5]} intensity={7} distance={12} color="#e3eddb" />
-    <pointLight position={[3, 3.4, -3.2]} intensity={13} distance={12} color="#6fbd8a" />
+    <hemisphereLight args={["#e1eadc", "#26352c", CAMERA_CONFIG.hemisphereLight]} />
+    <directionalLight ref={keyLightRef} position={[-3, 6, 6]} intensity={CAMERA_CONFIG.keyLight} color="#fff1dc" />
+    <pointLight position={[0, 3.5, 5]} intensity={CAMERA_CONFIG.fillLight} distance={12} color="#e3eddb" />
+    <pointLight position={[3, 3.4, -3.2]} intensity={CAMERA_CONFIG.greenRimLight} distance={12} color="#6fbd8a" />
     <mesh position={[0, 2.05, -1.25]}><circleGeometry args={[2.7, 96]} /><meshBasicMaterial color="#244a34" transparent opacity={0.23} depthWrite={false} /></mesh>
     <mesh position={[0, 2.05, -1.2]}><ringGeometry args={[2.48, 2.505, 128]} /><meshBasicMaterial ref={ringRef} color="#83bc82" transparent opacity={0.34} depthWrite={false} /></mesh>
-    <group ref={modelRef}><Model levelsRef={levelsRef} /></group>
+    <ModelRig levelsRef={levelsRef} modelRef={modelRef} />
     <Environment preset="studio" />
   </>;
 }
@@ -254,8 +391,8 @@ export default function BodyScene({ progressRef }: BodySceneProps) {
   const keyLightRef = useRef<THREE.DirectionalLight | null>(null);
   const ringRef = useRef<THREE.MeshBasicMaterial | null>(null);
   const modelRef = useRef<THREE.Group | null>(null);
-  return <Canvas className="body-scene-canvas" dpr={[1, 1.5]} camera={{ position: [0, 2, 11.5], fov: CAMERA_CONFIG.cameraFov, near: 0.1, far: 50 }} gl={{ antialias: true, alpha: false }}>
-    <Suspense fallback={<LoadingScreen />}><ScrollControls pages={CAMERA_CONFIG.pages} damping={CAMERA_CONFIG.scrollDamping}>
+  return <Canvas className="body-scene-canvas" dpr={[1, 1.5]} camera={{ position: [0, 2, 11.5], fov: CAMERA_CONFIG.cameraFov, near: 0.1, far: 50 }} gl={{ antialias: true, alpha: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: CAMERA_CONFIG.exposure }}>
+    <Suspense fallback={<LoadingScreen />}><ScrollControls pages={CAMERA_CONFIG.pages} damping={CAMERA_CONFIG.scrollDamping} style={{ touchAction: "pan-y", overscrollBehavior: "contain" }}>
       <LightsAndModel levelsRef={levelsRef} keyLightRef={keyLightRef} ringRef={ringRef} modelRef={modelRef} />
       <SceneCamera levelsRef={levelsRef} /><FinaleEffects keyLightRef={keyLightRef} ringRef={ringRef} modelRef={modelRef} /><StoryPages /><ZoneProgress progressRef={progressRef} />
     </ScrollControls></Suspense>

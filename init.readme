@@ -144,6 +144,13 @@
 - Added runtime mesh diagnostics and bounding-box landmark logs. The three named body meshes are retained; none was hidden because the GLB has no explicit redundant mesh naming and visual overlap cannot be established from its geometry metadata alone.
 - Files changed: `src/components/BodyScene.tsx`, `src/app/page.tsx`, `src/app/globals.css`, `init.readme`.
 
+### Restore original GLB skin shading and horizontal drag rotation
+
+- Kept the loaded GLB materials instead of replacing them. The source body color is carried by warm beige vertex colors, so the app enables those colors on the original materials; no fallback tint is needed. Color maps are marked sRGB when present. The JPEG normal map remains disabled from the prior shading repair.
+- Added ACES filmic tone mapping at 0.9 exposure and toned down hemisphere, key, fill, environment, and green rim lighting. Light and exposure values are grouped in the scene config.
+- Added horizontal-only pointer rotation with an invisible raycastable body hit area, axis locking so vertical touch gestures continue scrolling, damped motion, decaying inertia, cursor feedback, and shortest-path recentering after five idle seconds.
+- Files changed: `src/components/BodyScene.tsx`, `init.readme`.
+
 ## Verification
 
 - `npm run build` completed successfully after the 3D body atlas implementation (Next.js compile, lint, type validation, and static page generation passed). The built app also served `/models/human.glb` with HTTP 200.
