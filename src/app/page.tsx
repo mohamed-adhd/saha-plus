@@ -1,10 +1,24 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
   const panelRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [registering, setRegistering] = useState(false);
+  const [panelMotion, setPanelMotion] = useState(false);
+  const motionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function switchView(showRegister: boolean) {
+    setRegistering(showRegister);
+    setPanelMotion(true);
+    if (motionTimer.current) clearTimeout(motionTimer.current);
+    motionTimer.current = setTimeout(() => setPanelMotion(false), 900);
+  }
+
+  useEffect(() => () => {
+    if (motionTimer.current) clearTimeout(motionTimer.current);
+  }, []);
 
   useEffect(() => {
     const panel = panelRef.current;
@@ -82,8 +96,8 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="login-shell">
-      <section ref={panelRef} className="welcome-panel" aria-label="Saha Plus">
+    <main className={`login-shell${registering ? " is-registering" : ""}`}>
+      <section ref={panelRef} className={`welcome-panel${panelMotion ? " panel-in-motion" : ""}`} aria-label="Saha Plus">
         <canvas ref={canvasRef} className="plus-canvas" aria-hidden="true" />
         <a className="brand" href="#home" aria-label="Saha Plus home"><span className="brand-symbol">+</span> saha<span>plus</span></a>
         <div className="welcome-copy">
@@ -96,7 +110,7 @@ export default function Home() {
 
       <section className="form-panel">
         <div className="form-top"><span className="form-kicker"><span className="status-dot" /> YOUR WELLNESS SPACE</span><a href="#help">Need help?</a></div>
-        <div className="form-content">
+        <div className={`form-content auth-view login-view${registering ? " is-hidden" : " is-visible"}`} aria-hidden={registering}>
           <div className="mobile-brand"><span className="brand-symbol">+</span> saha<span>plus</span></div>
           <div className="welcome-note"><span className="note-icon" aria-hidden="true">✳</span><span>A LITTLE SPACE FOR YOU</span><span className="note-rule" /></div>
           <span className="eyebrow form-eyebrow">WELCOME BACK</span>
@@ -110,8 +124,26 @@ export default function Home() {
             <label className="remember"><input type="checkbox" name="remember" /><span>Keep me signed in</span></label>
             <button type="submit">Continue to your space <span aria-hidden="true">→</span></button>
           </form>
-          <p className="signup">New to Saha Plus? <a href="#signup">Create an account <span aria-hidden="true">↗</span></a></p>
+          <p className="signup">New to Saha Plus? <a href="#signup" onClick={(event) => { event.preventDefault(); switchView(true); }}>Create an account <span aria-hidden="true">↗</span></a></p>
           <div className="privacy-note"><span aria-hidden="true">⌑</span><span>Your health journey is personal. Your information stays private.</span></div>
+        </div>
+        <div className={`form-content auth-view register-view${registering ? " is-visible" : " is-hidden"}`} aria-hidden={!registering}>
+          <div className="mobile-brand"><span className="brand-symbol">+</span> saha<span>plus</span></div>
+          <div className="welcome-note"><span className="note-icon" aria-hidden="true">✳</span><span>BEGIN WITH ONE SMALL STEP</span><span className="note-rule" /></div>
+          <span className="eyebrow form-eyebrow">CREATE YOUR ACCOUNT</span>
+          <h2>Make room<br />for <em>feeling better.</em></h2>
+          <p className="form-intro">A little care, made personal. Start your Saha Plus journey today.</p>
+          <form onSubmit={(event) => event.preventDefault()}>
+            <label htmlFor="name">Your name</label>
+            <input id="name" name="name" type="text" placeholder="How should we call you?" autoComplete="name" />
+            <label htmlFor="register-email" className="register-field-label">Email address</label>
+            <input id="register-email" name="email" type="email" placeholder="you@example.com" autoComplete="email" />
+            <div className="password-label register-field-label"><label htmlFor="register-password">Create a password</label></div>
+            <input id="register-password" name="password" type="password" placeholder="At least 8 characters" autoComplete="new-password" />
+            <button type="submit">Create my account <span aria-hidden="true">→</span></button>
+          </form>
+          <p className="signup">Already have an account? <a href="#login" onClick={(event) => { event.preventDefault(); switchView(false); }}>Sign in <span aria-hidden="true">↗</span></a></p>
+          <div className="privacy-note"><span aria-hidden="true">⌑</span><span>Your information is private and always treated with care.</span></div>
         </div>
         <div className="form-footer"><span>© 2025 SAHA PLUS</span><a href="#privacy">PRIVACY &amp; TERMS</a></div>
       </section>

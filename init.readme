@@ -53,6 +53,14 @@
 - Kept the green plus-sign panel, canvas, and animation unchanged.
 - Files changed: `src/app/page.tsx`, `src/app/globals.css`.
 
+### In-place registration transition
+
+- Added a registration form that replaces sign-in without navigating to a new page.
+- Sign-in and registration forms crossfade in the same form area; the welcome/plus panel glides across with a brief damped sway, then settles.
+- Added the reverse transition back to sign-in and reduced-motion handling.
+- Preserved the plus canvas drawing implementation and symbol style.
+- Files changed: `src/app/page.tsx`, `src/app/globals.css`.
+
 ## Verification
 
 - `npm run build` was started; record the final result here when available.
