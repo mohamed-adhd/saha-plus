@@ -82,6 +82,13 @@
 - Kept the plus drawing and interaction behavior otherwise intact.
 - Files changed: `src/app/page.tsx`, `src/app/globals.css`.
 
+### Horizontal ECG pulse
+
+- Replaced the vertical scanning beam with a repeating, horizontally traveling ECG waveform drawn within the plus canvas.
+- Shaped each beat with P, QRS, and T components and a restrained green glow.
+- Kept the plus marks and transition behavior unchanged.
+- Files changed: `src/app/page.tsx`.
+
 ## Verification
 
 - `npm run build` was started; record the final result here when available.

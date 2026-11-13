@@ -85,15 +85,32 @@ export default function Home() {
         }
       }
 
-      const sweep = ((time % 2800) / 2800) * (width + 96) - 48;
-      const beam = context.createLinearGradient(sweep - 48, 0, sweep + 48, 0);
-      beam.addColorStop(0, "rgba(193, 239, 205, 0)");
-      beam.addColorStop(0.5, "rgba(193, 239, 205, 0.16)");
-      beam.addColorStop(1, "rgba(193, 239, 205, 0)");
-      context.fillStyle = beam;
-      context.fillRect(sweep - 48, 0, 96, height);
-      context.fillStyle = "rgba(213, 248, 219, 0.72)";
-      context.fillRect(sweep - 1, 0, 2, height);
+      const beatWidth = 188;
+      const baseline = height * 0.52;
+      const amplitude = Math.min(34, height * 0.075);
+      const travel = (time / 1000 * 42) % beatWidth;
+      const gaussian = (position: number, center: number, spread: number) =>
+        Math.exp(-(((position - center) / spread) ** 2));
+
+      context.beginPath();
+      for (let x = 0; x <= width; x += 2) {
+        const beatPosition = (((x + travel) % beatWidth) + beatWidth) % beatWidth;
+        const beat =
+          0.16 * gaussian(beatPosition, 45, 10) -
+          0.2 * gaussian(beatPosition, 78, 3.2) +
+          1.05 * gaussian(beatPosition, 84, 2.3) -
+          0.38 * gaussian(beatPosition, 91, 3.2) +
+          0.3 * gaussian(beatPosition, 119, 13);
+        const y = baseline - beat * amplitude;
+        if (x === 0) context.moveTo(x, y);
+        else context.lineTo(x, y);
+      }
+      context.strokeStyle = "rgba(193, 239, 205, 0.72)";
+      context.lineWidth = 1.6;
+      context.shadowColor = "rgba(164, 237, 186, 0.58)";
+      context.shadowBlur = 7;
+      context.stroke();
+      context.shadowBlur = 0;
     };
     frame = requestAnimationFrame(draw);
 
