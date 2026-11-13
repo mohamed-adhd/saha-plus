@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type RefObject } from "react";
-import { healthMetrics, regionDetails, todaySummary, type HealthMetric, type RegionDetail } from "../data/mockHealth";
+import { regionDetails, todaySummary, type RegionDetail } from "../data/mockHealth";
+import AnatomyIllustration from "./AnatomyIllustration";
 
 type Props = { progressRef: RefObject<HTMLElement> };
 const zones = ["head-mind", "chest-heart", "core-digestion", "legs-strength", "finale"];
@@ -9,28 +10,6 @@ const zones = ["head-mind", "chest-heart", "core-digestion", "legs-strength", "f
 function Sparkline({ points, className = "" }: { points: number[]; className?: string }) {
   const coords = points.map((point, index) => `${(index / (points.length - 1)) * 100},${30 - point * 2.6}`).join(" ");
   return <svg className={`health-sparkline ${className}`} viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true"><polyline points={coords} /></svg>;
-}
-
-function Icon({ name }: { name: HealthMetric["icon"] }) {
-  const paths: Record<HealthMetric["icon"], React.ReactNode> = {
-    heart: <><path d="M20.8 8.8c0 5.1-8.8 10-8.8 10s-8.8-4.9-8.8-10A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 8.8 1.4Z"/><path d="M4 12h4l2-3 3.2 6 2-3H20"/></>,
-    moon: <path d="M19.5 15.8A8 8 0 0 1 8.2 4.5 8.2 8.2 0 1 0 19.5 15.8Z"/>,
-    mood: <><circle cx="12" cy="12" r="8.5"/><path d="M8.5 14s1.2 2 3.5 2 3.5-2 3.5-2M9 9.5h.01M15 9.5h.01"/></>,
-    steps: <><path d="M8 4c1.6 0 2.4 2.1 2 4.4-.3 1.8-1.5 3-3 3S4 10.8 4 9.4 5.4 4 8 4ZM16 12c1.7 0 3 2.2 3 4s-1.2 3-2.8 3-3.2-1-3.2-2.4 1-5.6 3-5.6Z"/><path d="m7 13 1 2m8-1 1 2"/></>,
-    water: <path d="M12 3S5.5 10.2 5.5 14.5a6.5 6.5 0 0 0 13 0C18.5 10.2 12 3 12 3Z"/>,
-  };
-  return <svg viewBox="0 0 24 24" aria-hidden="true">{paths[name]}</svg>;
-}
-
-export function MetricCard({ metric, index, loading }: { metric: HealthMetric; index: number; loading: boolean }) {
-  return <article className={`metric-card metric-card-${index + 1}${loading ? " is-loading" : ""}`} aria-label={`${metric.label}: ${metric.value} ${metric.unit}`}>
-    {loading ? <><span className="metric-skeleton metric-skeleton-label"/><span className="metric-skeleton metric-skeleton-value"/><span className="metric-skeleton metric-skeleton-chart"/></> : <>
-      <div className="metric-card-heading"><span className="metric-icon"><Icon name={metric.icon}/></span><span>{metric.label}</span></div>
-      <div className="metric-reading"><strong>{metric.value}</strong>{metric.unit && <span>{metric.unit}</span>}</div>
-      <Sparkline points={metric.points}/>
-      <div className="metric-trend"><span aria-hidden="true">{metric.direction === "up" ? "↑" : "↓"}</span>{metric.trend}</div>
-    </>}
-  </article>;
 }
 
 function TodaySummary() {
@@ -57,7 +36,7 @@ function RegionPanel({ detail, onQuickAction }: { detail: RegionDetail; onQuickA
 }
 
 const hotSpots = [
-  { id: "head-mind", name: "Mind & sleep", metric: "7.8 hours", className: "hotspot-head" },
+  { id: "head-mind", name: "Focus", metric: "3 focus blocks", className: "hotspot-head" },
   { id: "chest-heart", name: "Heart", metric: "62 bpm", className: "hotspot-chest" },
   { id: "core-digestion", name: "Hydration", metric: "1.6 litres", className: "hotspot-core" },
   { id: "legs-strength", name: "Movement", metric: "8,420 steps", className: "hotspot-legs" },
@@ -70,7 +49,6 @@ function Hotspots({ onSelect }: { onSelect: (zone: string) => void }) {
 type QuickAction = { title: string; icon: string; field: string; placeholder: string; submit: string };
 const quickActions: QuickAction[] = [
   { title: "Log water", icon: "↓", field: "Glasses", placeholder: "1", submit: "Save water" },
-  { title: "Log mood", icon: "☺", field: "How are you feeling?", placeholder: "Good, calm, tired…", submit: "Save mood" },
   { title: "Start workout", icon: "↗", field: "Activity", placeholder: "A walk, stretch…", submit: "Start activity" },
   { title: "Add note", icon: "+", field: "Note", placeholder: "A thought for today…", submit: "Save note" },
 ];
@@ -121,15 +99,13 @@ function QuickActions({ requestedAction, onRequestHandled }: { requestedAction: 
 
 export default function DashboardUI({ progressRef }: Props) {
   const [activeZone, setActiveZone] = useState("overview");
-  const [loading, setLoading] = useState(true);
   const [requestedAction, setRequestedAction] = useState<string | null>(null);
   const dashboardRef = useRef<HTMLDivElement>(null);
+  const illustrationRef = useRef<SVGSVGElement>(null);
+  const scannerRef = useRef<SVGGElement>(null);
+  const scanTraceRef = useRef<SVGPathElement>(null);
   const clearRequestedAction = useCallback(() => setRequestedAction(null), []);
   const currentDetail = useMemo(() => regionDetails.find((detail) => detail.id === activeZone), [activeZone]);
-  useEffect(() => {
-    const done = window.setTimeout(() => setLoading(false), 850);
-    return () => window.clearTimeout(done);
-  }, []);
   useEffect(() => {
     let scrollElement: HTMLElement | null = null;
     let frame = 0;
@@ -137,6 +113,11 @@ export default function DashboardUI({ progressRef }: Props) {
     const sync = () => {
       if (!scrollElement) return;
       const page = scrollElement.clientHeight > 0 ? scrollElement.scrollTop / scrollElement.clientHeight : 0;
+      const maxScroll = scrollElement.scrollHeight - scrollElement.clientHeight;
+      const progress = maxScroll > 0 ? Math.max(0, Math.min(1, scrollElement.scrollTop / maxScroll)) : 0;
+      illustrationRef.current?.style.setProperty("--scan-progress", String(progress));
+      scannerRef.current?.setAttribute("transform", `translate(0 ${45 + progress * 795})`);
+      if (scanTraceRef.current) scanTraceRef.current.style.strokeDashoffset = String(100 - progress * 100);
       if (page < 0.85) setActiveZone("overview");
       else {
         const current = progressRef.current?.querySelector<HTMLElement>('[aria-current="step"]');
@@ -192,9 +173,8 @@ export default function DashboardUI({ progressRef }: Props) {
   const onQuickAction = (label: string) => setRequestedAction(label);
   return <div className="dashboard-ui" ref={dashboardRef}>
     <div className="dashboard-glow" aria-hidden="true"/>
-    {activeZone === "overview" && <svg className="metric-leaders" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M33 26 C42 27 42 34 48 38"/><path d="M34 47 C40 46 43 43 48 42"/><path d="M68 25 C59 28 57 35 52 39"/><path d="M68 54 C60 52 58 48 52 44"/><path d="M66 75 C59 68 56 57 52 49"/></svg>}
+    <AnatomyIllustration svgRef={illustrationRef} scannerRef={scannerRef} traceRef={scanTraceRef} region={activeZone}/>
     {activeZone === "overview" ? <>
-      <div className="overview-metrics" aria-label="Your health at a glance">{healthMetrics.map((metric, index) => <MetricCard key={metric.id} metric={metric} index={index} loading={loading}/>)}</div>
       <TodaySummary/><Hotspots onSelect={selectZone}/>
       <div className="overview-mobile-heading" aria-hidden="true"><span className="ui-overline">YOUR WELLNESS, TODAY</span><strong>Small signals.<br/><em>More understanding.</em></strong></div>
     </> : currentDetail ? <RegionPanel detail={currentDetail} onQuickAction={onQuickAction}/> : null}

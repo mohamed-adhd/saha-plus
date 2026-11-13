@@ -235,33 +235,8 @@ form { display: flex; flex-direction: column; }
 
 .dashboard-ui { position: fixed; z-index: 3; inset: 0; overflow: visible; pointer-events: none; color: var(--atlas-text); --parallax-x: 0px; --parallax-y: 0px; }
 .dashboard-glow { position: absolute; z-index: 0; left: calc(54% + var(--parallax-x)); top: calc(48% + var(--parallax-y)); width: min(62vw, 770px); aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, rgba(213, 180, 106, .09), rgba(76, 126, 83, .08) 35%, transparent 71%); filter: blur(6px); transition: transform 300ms ease-out; }
-.metric-leaders { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.metric-leaders path { fill: none; stroke: rgba(223, 193, 127, .45); stroke-width: .12; stroke-dasharray: .7 1.2; animation: leader-glow 4.5s ease-in-out infinite alternate; }
-@keyframes leader-glow { from { opacity: .48; } to { opacity: .9; } }
-.overview-metrics { position: absolute; z-index: 2; inset: 0; }
-.metric-card { position: fixed; width: clamp(205px, 17vw, 250px); min-height: 136px; padding: 15px 17px 12px; overflow: hidden; border: 1px solid var(--atlas-border); border-radius: var(--atlas-radius-md); color: var(--atlas-text); background: linear-gradient(145deg, rgba(21, 44, 32, .9), rgba(11, 27, 20, .82)); box-shadow: inset 0 1px rgba(255,255,255,.055), 0 14px 38px rgba(0,0,0,.18); backdrop-filter: blur(18px); pointer-events: auto; animation: metric-enter 650ms cubic-bezier(.2,.7,.2,1) both, metric-float 8s ease-in-out infinite; animation-delay: calc(var(--card-index, 0) * 110ms), calc(1s + var(--card-index, 0) * 220ms); transition: border-color 200ms ease, background-color 200ms ease, box-shadow 200ms ease, transform 200ms ease; }
-.metric-card-1 { --card-index: 0; left: clamp(390px, 38vw, 720px); top: 10%; }
-.metric-card-2 { --card-index: 1; left: clamp(390px, 38vw, 720px); top: 38%; }
-.metric-card-3 { --card-index: 2; left: clamp(390px, 38vw, 720px); top: 68%; }
-.metric-card-4 { --card-index: 3; right: clamp(98px, 9vw, 145px); top: 23%; }
-.metric-card-5 { --card-index: 4; right: clamp(98px, 9vw, 145px); top: 57%; }
-.metric-card:hover { z-index: 4; border-color: var(--atlas-border-strong); background-color: rgba(34, 57, 40, .96); box-shadow: inset 0 1px rgba(255,255,255,.09), 0 18px 45px rgba(0,0,0,.3), 0 0 26px rgba(223,193,127,.08); transform: translateY(-3px); }
-@keyframes metric-enter { from { opacity: 0; transform: translateY(13px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes metric-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
-.metric-card-heading { display: flex; align-items: center; gap: 9px; color: var(--atlas-text-secondary); font-size: 13px; }
-.metric-icon { display: grid; place-items: center; width: 27px; height: 27px; border: 1px solid rgba(222, 194, 127, .32); border-radius: 9px; color: var(--atlas-accent); background: rgba(223,193,127,.08); }
-.metric-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-.metric-reading { display: flex; align-items: baseline; gap: 6px; margin-top: 7px; }
-.metric-reading strong { color: var(--atlas-text); font-size: 27px; font-weight: 500; letter-spacing: -.045em; }
-.metric-reading > span { color: var(--atlas-text-muted); font-size: 13px; }
 .health-sparkline { width: 100%; height: 26px; overflow: visible; }
 .health-sparkline polyline { fill: none; stroke: var(--atlas-accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-.metric-card > .health-sparkline { position: absolute; right: 14px; bottom: 42px; width: 42%; height: 30px; opacity: .85; }
-.metric-trend { display: flex; align-items: center; gap: 5px; margin-top: 3px; color: var(--atlas-good); font-size: 12px; }
-.metric-trend > span { color: var(--atlas-accent); font-size: 15px; }
-.metric-skeleton { display: block; border-radius: 6px; background: linear-gradient(95deg, rgba(215,230,207,.06) 20%, rgba(215,230,207,.14) 40%, rgba(215,230,207,.06) 60%); background-size: 200% 100%; animation: skeleton-shimmer 1.4s ease-in-out infinite; }
-.metric-skeleton-label { width: 64%; height: 15px; margin: 8px 0 15px; }.metric-skeleton-value { width: 46%; height: 30px; }.metric-skeleton-chart { width: 100%; height: 20px; margin-top: 11px; }
-@keyframes skeleton-shimmer { to { background-position: -200% 0; } }
 
 .today-summary { position: fixed; z-index: 2; left: clamp(88px, 8vw, 128px); bottom: 58px; display: flex; align-items: center; gap: 15px; width: 310px; padding: 12px 16px; border: 1px solid rgba(214,230,205,.16); border-radius: var(--atlas-radius-md); background: rgba(11,28,20,.73); box-shadow: inset 0 1px rgba(255,255,255,.04); backdrop-filter: blur(14px); pointer-events: auto; }
 .today-rings { width: 70px; height: 70px; flex: 0 0 70px; }
@@ -295,14 +270,12 @@ form { display: flex; flex-direction: column; }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 
 @media (max-width: 1100px) and (min-width: 761px) {
-  .overview-metrics { inset: auto 72px 175px 70px; height: 135px; display: flex; gap: 10px; overflow-x: auto; padding: 4px 6px 12px; scrollbar-width: none; pointer-events: auto; }.overview-metrics::-webkit-scrollbar { display: none; }.metric-card { position: relative; inset: auto !important; flex: 0 0 200px; width: 200px; min-height: 120px; padding: 12px; animation: metric-enter 600ms ease both; animation-delay: calc(var(--card-index, 0) * 80ms); }.metric-card:hover { transform: none; }.metric-leaders { display: none; }.metric-card-4,.metric-card-5 { right: auto; }.region-detail-panel { width: min(360px, 34vw); }.today-summary { left: 80px; bottom: 24px; transform: scale(.9); transform-origin: left bottom; }
+  .region-detail-panel { width: min(360px, 34vw); }.today-summary { left: 80px; bottom: 24px; transform: scale(.9); transform-origin: left bottom; }
 }
 @media (max-width: 760px) {
   .cinematic-shell::after { opacity: .035; }
   .body-hero-topline { font-size: 11px; }.body-hero-copy > p:not(.body-brand) { max-width: 280px; font-size: 15px; }.body-scroll-cue { font-size: 12px; }
   .dashboard-ui { z-index: 3; }.dashboard-glow { left: calc(59% + var(--parallax-x)); top: calc(39% + var(--parallax-y)); width: 100vw; }
-  .metric-leaders { display: none; }.overview-metrics { top: 43%; bottom: auto; height: 147px; overflow: visible; display: flex; align-items: stretch; gap: 10px; padding: 5px 14px 15px 76px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; pointer-events: auto; }.overview-metrics::-webkit-scrollbar { display: none; }
-  .metric-card { position: relative; inset: auto !important; flex: 0 0 208px; width: 208px; min-height: 125px; scroll-snap-align: start; animation: metric-enter 500ms ease both; animation-delay: calc(var(--card-index, 0) * 75ms); }.metric-card:hover { transform: none; }.metric-reading strong { font-size: 24px; }
   .today-summary { left: 76px; right: 13px; bottom: 83px; width: auto; min-height: 78px; padding: 8px 12px; gap: 11px; }.today-rings { width: 58px; height: 58px; flex-basis: 58px; }.ui-overline { font-size: 10px; }.today-stats { gap: 9px; margin-top: 5px; }.today-stats strong { font-size: 15px; }.today-summary-content > p { font-size: 10px; }
   .body-hotspots { inset: 0; }.body-hotspot { width: 23px; height: 23px; }.hotspot-head { left: 60%; top: 22%; }.hotspot-chest { left: 60%; top: 34%; }.hotspot-core { left: 60%; top: 44%; }.hotspot-legs { left: 60%; top: 59%; }.hotspot-tooltip { left: 29px; min-width: 110px; }.overview-mobile-heading { position: fixed; z-index: 2; top: 19%; left: 76px; display: grid; gap: 7px; }.overview-mobile-heading strong { color: var(--atlas-text); font: 400 clamp(24px, 7vw, 34px)/1.04 Georgia,serif; letter-spacing: -.045em; }.overview-mobile-heading strong em { color: #d7c899; font-weight: 400; }
   .region-detail-panel { top: auto; bottom: max(88px, calc(74px + env(safe-area-inset-bottom))); left: 74px; width: calc(100vw - 128px); max-height: min(58svh, 490px); overflow-y: auto; padding: 17px; border-radius: 16px; transform: none; }.region-panel-top { margin-bottom: 11px; }.region-icon { width: 34px; height: 34px; font-size: 23px; }.region-detail-panel h2 { font-size: clamp(24px, 7vw, 31px); }.region-description { font-size: 13px; }.region-stats { gap: 8px; margin: 13px 0; padding: 11px 0; }.region-stat { grid-template-columns: 1fr 48px auto; font-size: 11px; }.region-stat strong { font-size: 11px; }.region-actions { gap: 6px; }.region-primary { min-height: 39px; font-size: 12px; }.region-secondary { font-size: 11px; }
@@ -310,16 +283,39 @@ form { display: flex; flex-direction: column; }
   .body-zone-progress { right: 9px; }.body-zone-progress a span { display: block; max-width: 0; overflow: hidden; white-space: nowrap; opacity: 0; }.body-zone-progress a.is-active span,.body-zone-progress a:hover span,.body-zone-progress a:focus-visible span { max-width: 110px; opacity: 1; }
 }
 @media (max-width: 390px) {
-  .overview-metrics { top: 42%; }.today-summary { bottom: 79px; }.today-summary-content > p { font-size: 9px; }.today-stats small { font-size: 10px; }.quick-action-bar { width: calc(100% - 76px); }.quick-action-bar button { padding: 0 5px; font-size: 8px; }.region-detail-panel { width: calc(100vw - 115px); left: 68px; padding: 13px; }.body-zone-progress { right: 4px; }
+  .today-summary { bottom: 79px; }.today-summary-content > p { font-size: 9px; }.today-stats small { font-size: 10px; }.quick-action-bar { width: calc(100% - 76px); }.quick-action-bar button { padding: 0 5px; font-size: 8px; }.region-detail-panel { width: calc(100vw - 115px); left: 68px; padding: 13px; }.body-zone-progress { right: 4px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .metric-card,.body-hotspot,.metric-leaders path,.ring-progress,.metric-skeleton,.dashboard-glow { animation: none !important; transition: none !important; }
-  .metric-card { opacity: 1; transform: none; }.region-detail-panel { animation: none; }.dashboard-ui { --parallax-x: 0px !important; --parallax-y: 0px !important; }
+  .body-hotspot,.ring-progress,.dashboard-glow { animation: none !important; transition: none !important; }
+  .region-detail-panel { animation: none; }.dashboard-ui { --parallax-x: 0px !important; --parallax-y: 0px !important; }
 }
-.ui-overline,.body-zone-progress a span,.body-hero-topline,.body-model-credit,.metric-trend,.today-stats small,.today-summary-content > p,.region-stat,.region-secondary,.quick-action-bar button,.status-chip,.hotspot-tooltip small { font-size: 13px; }
+.ui-overline,.body-zone-progress a span,.body-hero-topline,.body-model-credit,.today-stats small,.today-summary-content > p,.region-stat,.region-secondary,.quick-action-bar button,.status-chip,.hotspot-tooltip small { font-size: 13px; }
 .region-description { font-size: 16px; }
 @media (max-width: 760px) {
   .quick-action-bar { justify-content: flex-start; overflow-x: auto; scrollbar-width: none; }.quick-action-bar::-webkit-scrollbar { display: none; }.quick-action-bar button { flex: 0 0 auto; font-size: 13px; }
   .today-stats small,.today-summary-content > p { font-size: 13px; }
   .body-model-credit { font-size: 10px; }
 }
+
+/* The anatomical SVG replaces the visible mesh while ScrollControls remains the scroll driver. */
+.body-scene-canvas > canvas { opacity: 0; pointer-events: none; }
+.anatomy-illustration-shell { position: fixed; z-index: 1; top: 50%; left: 54%; width: min(48vw, 570px); height: min(94svh, 980px); transform: translate(-50%, -50%); pointer-events: none; filter: drop-shadow(0 0 20px rgba(144, 193, 140, .1)); }
+.anatomy-illustration { display: block; width: 100%; height: 100%; overflow: visible; }
+.anatomy-contour { opacity: .62; transition: opacity 500ms ease; }
+.anatomy-zone { opacity: .48; transition: opacity 420ms ease, filter 420ms ease; }
+.anatomy-illustration[data-region="head-mind"] .anatomy-head,
+.anatomy-illustration[data-region="chest-heart"] .anatomy-chest,
+.anatomy-illustration[data-region="core-digestion"] .anatomy-core,
+.anatomy-illustration[data-region="legs-strength"] .anatomy-limbs,
+.anatomy-illustration[data-region="finale"] .anatomy-limbs { opacity: 1; filter: drop-shadow(0 0 7px rgba(207, 223, 170, .62)); }
+.anatomy-points circle { opacity: .68; animation: anatomy-point 3.2s ease-in-out infinite alternate; }
+.anatomy-points circle:nth-child(2) { animation-delay: .55s; }.anatomy-points circle:nth-child(3) { animation-delay: 1.1s; }.anatomy-points circle:nth-child(4) { animation-delay: 1.65s; }
+.anatomy-scanner { transition: transform 80ms linear; }
+.anatomy-scanner path { opacity: .62; }
+.anatomy-scanner circle { animation: scanner-beat 2.1s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.anatomy-scan-trail { fill: none; stroke: #dfc17f; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; opacity: .92; filter: url(#anatomy-glow); }
+@keyframes anatomy-point { from { opacity: .4; } to { opacity: .95; } }
+@keyframes scanner-beat { 0%,100% { opacity: .65; transform: scale(.82); } 50% { opacity: 1; transform: scale(1.3); } }
+@media (max-width: 1100px) and (min-width: 761px) { .anatomy-illustration-shell { left: 58%; width: min(54vw, 500px); height: 84svh; } }
+@media (max-width: 760px) { .anatomy-illustration-shell { top: 43%; left: 61%; width: min(78vw, 440px); height: 76svh; } }
+@media (prefers-reduced-motion: reduce) { .anatomy-contour,.anatomy-zone,.anatomy-scanner,.anatomy-points circle { transition: none !important; animation: none !important; } }
