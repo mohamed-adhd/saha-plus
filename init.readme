@@ -31,6 +31,14 @@
 - Kept the existing login layout and copy intact.
 - Files changed: `src/app/page.tsx`, `src/app/globals.css`.
 
+### Particle performance and green palette
+
+- Replaced 1,444 animated DOM nodes and pointer-driven React updates with a single canvas renderer.
+- Capped rendering at roughly 30 FPS and device pixel ratio 1.5; pauses drawing while the tab is hidden.
+- Preserved blinking and cursor-driven growth, brightness, and displacement.
+- Changed the decorative panel and accents to a restrained green palette and simplified its background treatment.
+- Files changed: `src/app/page.tsx`, `src/app/globals.css`.
+
 ## Verification
 
 - `npm run build` was started; record the final result here when available.

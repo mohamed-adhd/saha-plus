@@ -1,57 +1,90 @@
 "use client";
 
-import { PointerEvent, useRef, useState } from "react";
-
-const columns = 38;
-const rows = 38;
-const marks = Array.from({ length: columns * rows }, (_, index) => ({
-  id: index,
-  x: ((index % columns) + 0.5) * (100 / columns),
-  y: (Math.floor(index / columns) + 0.5) * (100 / rows),
-  blinkDelay: -((index * 13) % 50) / 10,
-}));
+import { useEffect, useRef } from "react";
 
 export default function Home() {
   const panelRef = useRef<HTMLElement>(null);
-  const [pointer, setPointer] = useState({ x: -1000, y: -1000 });
-  const [ripple, setRipple] = useState({ x: -1000, y: -1000, key: 0 });
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  function movePointer(event: PointerEvent<HTMLElement>) {
-    const bounds = panelRef.current?.getBoundingClientRect();
-    if (!bounds) return;
-    setPointer({ x: event.clientX - bounds.left, y: event.clientY - bounds.top });
-  }
+  useEffect(() => {
+    const panel = panelRef.current;
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d", { alpha: true });
+    if (!panel || !canvas || !context) return;
 
-  function startRipple(event: PointerEvent<HTMLElement>) {
-    const bounds = panelRef.current?.getBoundingClientRect();
-    if (!bounds) return;
-    setRipple({ x: event.clientX - bounds.left, y: event.clientY - bounds.top, key: Date.now() });
-  }
+    let width = 0;
+    let height = 0;
+    let frame = 0;
+    let pointerX = -1000;
+    let pointerY = -1000;
+    let lastDraw = 0;
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+
+    const resize = () => {
+      const bounds = panel.getBoundingClientRect();
+      width = bounds.width;
+      height = bounds.height;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    const onMove = (event: PointerEvent) => {
+      const bounds = panel.getBoundingClientRect();
+      pointerX = event.clientX - bounds.left;
+      pointerY = event.clientY - bounds.top;
+    };
+    const onLeave = () => { pointerX = pointerY = -1000; };
+    const observer = new ResizeObserver(resize);
+    observer.observe(panel);
+    resize();
+    panel.addEventListener("pointermove", onMove, { passive: true });
+    panel.addEventListener("pointerleave", onLeave, { passive: true });
+
+    const draw = (time: number) => {
+      frame = requestAnimationFrame(draw);
+      if (document.hidden || time - lastDraw < 32) return;
+      lastDraw = time;
+      context.clearRect(0, 0, width, height);
+      const spacing = 19;
+      const radius = 125;
+      const phase = time / 1000;
+      context.lineWidth = 1.25;
+      for (let y = spacing / 2, row = 0; y < height; y += spacing, row++) {
+        for (let x = spacing / 2, column = 0; x < width; x += spacing, column++) {
+          const distance = Math.hypot(x - pointerX, y - pointerY);
+          const influence = Math.max(0, 1 - distance / radius);
+          const blink = 0.5 + 0.5 * Math.sin(phase * 2.1 + row * 1.71 + column * 2.37);
+          const alpha = 0.13 + blink * 0.11 + influence * 0.7;
+          const size = 2.2 + influence * 3.4;
+          const push = influence * 6;
+          const angle = Math.atan2(y - pointerY, x - pointerX);
+          const px = x + Math.cos(angle) * push;
+          const py = y + Math.sin(angle) * push;
+          context.strokeStyle = `rgba(193, 239, 205, ${alpha})`;
+          context.beginPath();
+          context.moveTo(px - size, py);
+          context.lineTo(px + size, py);
+          context.moveTo(px, py - size);
+          context.lineTo(px, py + size);
+          context.stroke();
+        }
+      }
+    };
+    frame = requestAnimationFrame(draw);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      panel.removeEventListener("pointermove", onMove);
+      panel.removeEventListener("pointerleave", onLeave);
+    };
+  }, []);
 
   return (
     <main className="login-shell">
-      <section ref={panelRef} className="welcome-panel" onPointerMove={movePointer} onPointerDown={startRipple} aria-label="Saha Plus">
-        <div className="plus-field" aria-hidden="true">
-          {marks.map((mark) => (
-            <span
-              className="plus-mark"
-              key={mark.id}
-              style={{
-                left: `${mark.x}%`,
-                top: `${mark.y}%`,
-                animationDelay: `${mark.blinkDelay}s`,
-                "--near": `${Math.max(0, 1 - Math.hypot((mark.x / 100 * (panelRef.current?.clientWidth ?? 420)) - pointer.x, (mark.y / 100 * (panelRef.current?.clientHeight ?? 760)) - pointer.y) / 180)}`,
-                "--dx": `${Math.max(-1, Math.min(1, (mark.x / 100 * (panelRef.current?.clientWidth ?? 420) - pointer.x) / 100)) * 8}px`,
-                "--dy": `${Math.max(-1, Math.min(1, (mark.y / 100 * (panelRef.current?.clientHeight ?? 760) - pointer.y) / 100)) * 8}px`,
-              } as React.CSSProperties}
-            >+</span>
-          ))}
-          <span
-            key={ripple.key}
-            className="water-ripple"
-            style={{ left: ripple.x, top: ripple.y }}
-          />
-        </div>
+      <section ref={panelRef} className="welcome-panel" aria-label="Saha Plus">
+        <canvas ref={canvasRef} className="plus-canvas" aria-hidden="true" />
         <a className="brand" href="#home" aria-label="Saha Plus home"><span className="brand-symbol">+</span> saha<span>plus</span></a>
         <div className="welcome-copy">
           <span className="eyebrow">YOUR WELLNESS, IN BALANCE</span>
