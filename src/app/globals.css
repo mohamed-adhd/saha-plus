@@ -71,6 +71,32 @@ form { display: flex; flex-direction: column; }
 .privacy-note { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 26px; padding-top: 17px; border-top: 1px solid #dce4d8; color: #718074; font-size: 10px; line-height: 1.5; }
 .privacy-note > span:first-child { display: grid; place-items: center; width: 19px; height: 19px; border: 1px solid #a8bba6; border-radius: 50%; color: #59785c; font-size: 12px; }
 .form-footer a:hover, .form-top a:hover, .password-label a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.home-shell { min-height: 100svh; background: #f5f7f0; }
+.home-header { min-height: 82px; display: flex; align-items: center; justify-content: space-between; gap: 28px; padding: 0 clamp(24px, 6vw, 88px); border-bottom: 1px solid #dce6dd; background: #fff; }
+.home-brand { display: inline-flex; align-items: center; gap: 2px; color: #183128; font-size: 20px; font-weight: 700; letter-spacing: -.7px; white-space: nowrap; }
+.home-brand > span:last-child { color: #668563; font-weight: 400; }
+.home-brand .brand-symbol { border-color: #97b29a; }
+.home-header nav { display: flex; align-items: center; gap: clamp(16px, 3vw, 42px); color: #657368; font-size: 12px; }
+.home-header nav a { padding: 31px 0 29px; border-bottom: 2px solid transparent; }
+.home-header nav a:hover, .home-header nav a.active { color: #276747; border-color: #608c61; }
+.profile-button { padding: 10px 15px; border: 1px solid #cbd8ca; border-radius: 6px; color: #356e4d; background: transparent; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.profile-button:hover { background: #f1f5ee; }
+.home-content { width: min(1060px, calc(100% - 48px)); margin: 0 auto; padding: clamp(66px, 10vh, 112px) 0 54px; }
+.home-eyebrow { margin: 0; color: #648363; font-size: 10px; font-weight: 700; letter-spacing: 2px; }
+.home-content h1 { margin: 18px 0 15px; color: #233c2e; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(42px, 6vw, 68px); font-weight: 400; line-height: 1.03; letter-spacing: -1px; }
+.home-content h1 em { color: #668563; font-weight: 400; }
+.home-intro { max-width: 440px; margin: 0; color: #657368; font-size: 14px; line-height: 1.8; }
+.home-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 50px; }
+.home-cards > a { min-height: 224px; display: flex; flex-direction: column; align-items: flex-start; padding: 24px; border: 1px solid #dce6dd; border-radius: 8px; background: #fff; transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease; }
+.home-cards > a:hover { transform: translateY(-3px); border-color: #a9bcae; box-shadow: 0 12px 30px rgba(35,60,46,.07); }
+.home-card-icon { display: grid; place-items: center; width: 38px; height: 38px; margin-bottom: 23px; border: 1px solid #cbd8c5; border-radius: 50%; color: #648363; font-size: 18px; }
+.home-card-label { color: #829084; font-size: 9px; font-weight: 700; letter-spacing: 1.4px; }
+.home-cards strong { margin-top: 8px; color: #2d4637; font-family: Georgia, 'Times New Roman', serif; font-size: 21px; font-weight: 400; }
+.home-card-link { display: flex; justify-content: space-between; width: 100%; margin-top: auto; padding-top: 21px; color: #356e4d; font-size: 11px; font-weight: 650; }
+.home-card-link b { font-size: 17px; font-weight: 400; }
+.home-privacy { margin-top: 34px; color: #829084; font-size: 11px; }
+@media (max-width: 760px) { .home-header { flex-wrap: wrap; min-height: auto; padding: 18px 20px 0; gap: 12px; } .home-header nav { order: 3; width: 100%; overflow-x: auto; gap: 24px; } .home-header nav a { padding: 14px 0 12px; white-space: nowrap; } .home-content { padding-top: 60px; } .home-cards { grid-template-columns: 1fr; gap: 12px; margin-top: 34px; } .home-cards > a { min-height: 190px; } }
+@media (prefers-reduced-motion: reduce) { .home-cards > a { transition: none; } }
 @media (max-width: 760px) { .login-shell { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .welcome-panel { min-height: 100svh; padding: 24px 25px; } .welcome-copy { margin: auto 0; padding: 30px 0 20px; } .welcome-copy h1 { margin: 12px 0 8px; font-size: 38px; } .welcome-copy p { margin: 0; font-size: 12px; } .panel-footer, .form-top { display: none; } .form-panel { min-height: 100svh; padding: 28px 20px 20px; } .form-content { margin: auto; padding: 26px 0 36px; } .auth-view { max-height: calc(100% - 50px); } .welcome-note { margin-bottom: 20px; } .form-content h2 { font-size: 39px; } .privacy-note { margin-top: 22px; } }
 @media (max-width: 520px) { .welcome-panel { padding: 20px 14px; } .brand { font-size: 16px; } .brand-symbol { width: 23px; height: 23px; margin-right: 4px; } .welcome-copy h1 { font-size: 30px; } .welcome-copy p { font-size: 11px; line-height: 1.5; } .form-panel { padding-right: 12px; padding-left: 12px; } .auth-view, .login-view, .register-view { width: calc(100% - 24px); } .form-content h2 { font-size: 32px; } .form-intro { font-size: 12px; } .form-panel form input[type="email"], .form-panel form input[type="password"], .form-panel form input[type="text"] { height: 44px; padding: 0 9px; font-size: 11px; } .form-panel form button { min-height: 45px; padding: 0 10px; font-size: 11px; } .signup { font-size: 10px; } .privacy-note { font-size: 9px; } }
 @media (max-width: 430px) { .welcome-panel { min-height: 220px; } .form-panel { min-height: calc(100svh - 220px); } .welcome-copy p { max-width: 300px; } .eyebrow { font-size: 9px; } }

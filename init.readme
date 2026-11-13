@@ -5,6 +5,11 @@
 - Next.js 14 app in `src/app`.
 - Start locally with `npm run dev`.
 
+## Required change workflow
+
+- After every completed code or documentation change, verify the result, commit it, and push it to `origin/main` before starting another change.
+- Do not leave a completed change only in the local working tree; record the push result in this work log.
+
 ## Completed
 
 ### Login screen and interactive plus field
@@ -89,6 +94,13 @@
 - Kept the plus marks and transition behavior unchanged.
 - Files changed: `src/app/page.tsx`.
 
+### Live ECG trace and pre-database login destination
+
+- Changed the ECG to draw progressively from a moving head, retaining only a short trail that fades behind it and resets at the panel edge.
+- Added an in-app wellness home/menu screen reached on login form submission, regardless of entered credentials, until NeonDB authentication is connected.
+- Added a sign-out action to return to the sign-in screen.
+- Files changed: `src/app/page.tsx`, `src/app/globals.css`.
+
 ## Verification
 
-- `npm run build` was started; record the final result here when available.
+- `npm run build` completed successfully (Next.js compile, lint, type validation, and static page generation passed).

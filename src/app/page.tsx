@@ -6,6 +6,7 @@ export default function Home() {
   const panelRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [registering, setRegistering] = useState(false);
+  const [enteredHome, setEnteredHome] = useState(false);
   const [panelMotion, setPanelMotion] = useState(false);
   const motionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -88,29 +89,38 @@ export default function Home() {
       const beatWidth = 188;
       const baseline = height * 0.52;
       const amplitude = Math.min(34, height * 0.075);
-      const travel = (time / 1000 * 42) % beatWidth;
+      const speed = 72;
+      const head = (time / 1000 * speed) % (width + 1);
+      const trailLength = Math.min(290, width);
       const gaussian = (position: number, center: number, spread: number) =>
         Math.exp(-(((position - center) / spread) ** 2));
 
-      context.beginPath();
-      for (let x = 0; x <= width; x += 2) {
-        const beatPosition = (((x + travel) % beatWidth) + beatWidth) % beatWidth;
-        const beat =
-          0.16 * gaussian(beatPosition, 45, 10) -
-          0.2 * gaussian(beatPosition, 78, 3.2) +
-          1.05 * gaussian(beatPosition, 84, 2.3) -
-          0.38 * gaussian(beatPosition, 91, 3.2) +
-          0.3 * gaussian(beatPosition, 119, 13);
-        const y = baseline - beat * amplitude;
-        if (x === 0) context.moveTo(x, y);
-        else context.lineTo(x, y);
+      if (head > 0) {
+        const start = Math.max(0, head - trailLength);
+        const gradient = context.createLinearGradient(start, 0, head, 0);
+        gradient.addColorStop(0, "rgba(193, 239, 205, 0)");
+        gradient.addColorStop(0.72, "rgba(193, 239, 205, 0.38)");
+        gradient.addColorStop(1, "rgba(220, 255, 228, 0.92)");
+        context.beginPath();
+        for (let x = start; x <= head; x += 2) {
+          const beatPosition = ((x % beatWidth) + beatWidth) % beatWidth;
+          const beat =
+            0.16 * gaussian(beatPosition, 45, 10) -
+            0.2 * gaussian(beatPosition, 78, 3.2) +
+            1.05 * gaussian(beatPosition, 84, 2.3) -
+            0.38 * gaussian(beatPosition, 91, 3.2) +
+            0.3 * gaussian(beatPosition, 119, 13);
+          const y = baseline - beat * amplitude;
+          if (x === start) context.moveTo(x, y);
+          else context.lineTo(x, y);
+        }
+        context.strokeStyle = gradient;
+        context.lineWidth = 1.8;
+        context.shadowColor = "rgba(164, 237, 186, 0.58)";
+        context.shadowBlur = 7;
+        context.stroke();
+        context.shadowBlur = 0;
       }
-      context.strokeStyle = "rgba(193, 239, 205, 0.72)";
-      context.lineWidth = 1.6;
-      context.shadowColor = "rgba(164, 237, 186, 0.58)";
-      context.shadowBlur = 7;
-      context.stroke();
-      context.shadowBlur = 0;
     };
     frame = requestAnimationFrame(draw);
 
@@ -121,6 +131,29 @@ export default function Home() {
       panel.removeEventListener("pointerleave", onLeave);
     };
   }, []);
+
+  if (enteredHome) {
+    return (
+      <main className="home-shell">
+        <header className="home-header">
+          <a className="home-brand" href="#home"><span className="brand-symbol">+</span> saha<span>plus</span></a>
+          <nav aria-label="Main menu"><a className="active" href="#overview">Overview</a><a href="#wellbeing">Wellbeing</a><a href="#appointments">Appointments</a><a href="#profile">My profile</a></nav>
+          <button className="profile-button" type="button" onClick={() => setEnteredHome(false)}>Sign out</button>
+        </header>
+        <section className="home-content" id="overview">
+          <p className="home-eyebrow">YOUR WELLNESS SPACE</p>
+          <h1>Welcome to your<br /><em>space to feel better.</em></h1>
+          <p className="home-intro">Your Saha Plus journey starts with one small step. Choose where you’d like to begin.</p>
+          <div className="home-cards">
+            <a href="#wellbeing"><span className="home-card-icon">✳</span><span className="home-card-label">DAILY CARE</span><strong>Check in with yourself</strong><span className="home-card-link">Explore your wellbeing <b>→</b></span></a>
+            <a href="#appointments"><span className="home-card-icon">◷</span><span className="home-card-label">YOUR CARE</span><strong>Plan your next step</strong><span className="home-card-link">View appointments <b>→</b></span></a>
+            <a href="#profile"><span className="home-card-icon">＋</span><span className="home-card-label">PERSONAL SPACE</span><strong>Make it yours</strong><span className="home-card-link">Complete your profile <b>→</b></span></a>
+          </div>
+          <p className="home-privacy">Your information stays private and always treated with care.</p>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className={`login-shell${registering ? " is-registering" : ""}`}>
@@ -143,7 +176,7 @@ export default function Home() {
           <span className="eyebrow form-eyebrow">WELCOME BACK</span>
           <h2>Feel good<br />about <em>coming back.</em></h2>
           <p className="form-intro">Pick up your wellness journey right where you left it.</p>
-          <form onSubmit={(event) => event.preventDefault()}>
+          <form noValidate onSubmit={(event) => { event.preventDefault(); setEnteredHome(true); }}>
             <label htmlFor="email">Email address <span>REQUIRED</span></label>
             <input id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" />
             <div className="password-label"><label htmlFor="password">Password</label><a href="#reset">Forgot password?</a></div>
