@@ -46,6 +46,13 @@
 - Left the green plus-sign panel, canvas, and animation unchanged.
 - Files changed: `src/app/globals.css`.
 
+### Wellness-focused login redesign
+
+- Reworked the login-side welcome message and form hierarchy with warm sage surfaces and more distinctive wellness details.
+- Added a compact privacy reassurance and refined the action area.
+- Kept the green plus-sign panel, canvas, and animation unchanged.
+- Files changed: `src/app/page.tsx`, `src/app/globals.css`.
+
 ## Verification
 
 - `npm run build` was started; record the final result here when available.

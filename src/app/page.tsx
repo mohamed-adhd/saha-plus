@@ -95,21 +95,23 @@ export default function Home() {
       </section>
 
       <section className="form-panel">
-        <div className="form-top"><span>WELCOME BACK</span><a href="#help">Need help?</a></div>
+        <div className="form-top"><span className="form-kicker"><span className="status-dot" /> YOUR WELLNESS SPACE</span><a href="#help">Need help?</a></div>
         <div className="form-content">
           <div className="mobile-brand"><span className="brand-symbol">+</span> saha<span>plus</span></div>
-          <span className="eyebrow form-eyebrow">YOUR SPACE IS READY</span>
-          <h2>Sign in</h2>
-          <p className="form-intro">Good to see you again. Let’s pick up where you left off.</p>
+          <div className="welcome-note"><span className="note-icon" aria-hidden="true">✳</span><span>A LITTLE SPACE FOR YOU</span><span className="note-rule" /></div>
+          <span className="eyebrow form-eyebrow">WELCOME BACK</span>
+          <h2>Feel good<br />about <em>coming back.</em></h2>
+          <p className="form-intro">Pick up your wellness journey right where you left it.</p>
           <form onSubmit={(event) => event.preventDefault()}>
-            <label htmlFor="email">Email address</label>
+            <label htmlFor="email">Email address <span>REQUIRED</span></label>
             <input id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" />
             <div className="password-label"><label htmlFor="password">Password</label><a href="#reset">Forgot password?</a></div>
             <input id="password" name="password" type="password" placeholder="Enter your password" autoComplete="current-password" />
             <label className="remember"><input type="checkbox" name="remember" /><span>Keep me signed in</span></label>
-            <button type="submit">Sign in <span aria-hidden="true">→</span></button>
+            <button type="submit">Continue to your space <span aria-hidden="true">→</span></button>
           </form>
           <p className="signup">New to Saha Plus? <a href="#signup">Create an account <span aria-hidden="true">↗</span></a></p>
+          <div className="privacy-note"><span aria-hidden="true">⌑</span><span>Your health journey is personal. Your information stays private.</span></div>
         </div>
         <div className="form-footer"><span>© 2025 SAHA PLUS</span><a href="#privacy">PRIVACY &amp; TERMS</a></div>
       </section>
