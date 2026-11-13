@@ -128,9 +128,17 @@
 - Verified the optimized build and confirmed the rebuilt local server returns `200 video/webm` and `200 video/mp4` with range support.
 - Files changed: `public/media/anatomy-scroll.webm`, `src/app/page.tsx`, `init.readme`.
 
+### Camera-driven 3D body atlas
+
+- Matched the installed stack: React 18.3.1, Fiber 8.15.12, Drei 9.88.0, Three 0.160.0; added `@types/three` 0.160.0.
+- Copied the supplied `male_body_base.glb` to `public/models/human.glb`, auto-fit it to 4 units tall with feet at y=0, and added the required Sketchfab/CC BY 4.0 attribution.
+- Added a full-screen Three.js scene, eased vertical camera travel with a chest/core zoom, five alternating body-zone chapters, mobile bottom cards, progress navigation, lighting, fog, and a loading percentage.
+- Dynamically imports the client-only scene. The model remains static while only the camera follows scroll.
+- Files changed: `package.json`, `package-lock.json`, `public/models/human.glb`, `src/app/page.tsx`, `src/app/globals.css`, `src/components/BodyScene.tsx`, `init.readme`.
+
 ## Verification
 
-- `npm run build` completed successfully after the video playback compatibility fix (Next.js compile, lint, type validation, and static page generation passed).
+- `npm run build` completed successfully after the 3D body atlas implementation (Next.js compile, lint, type validation, and static page generation passed). The built app also served `/models/human.glb` with HTTP 200.
 
 ## Push log
 

@@ -1,17 +1,19 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
+
+const BodyScene = dynamic(() => import("../components/BodyScene"), {
+  ssr: false,
+  loading: () => <div className="body-scene-startup" role="status">Loading Saha Plus body atlas…</div>,
+});
 
 export default function Home() {
   const panelRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const filmTrackRef = useRef<HTMLElement>(null);
-  const filmVideoRef = useRef<HTMLVideoElement>(null);
+  const bodyProgressRef = useRef<HTMLElement>(null);
   const [registering, setRegistering] = useState(false);
   const [enteredHome, setEnteredHome] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
-  const [videoFailed, setVideoFailed] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [panelMotion, setPanelMotion] = useState(false);
   const motionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -25,51 +27,6 @@ export default function Home() {
   useEffect(() => () => {
     if (motionTimer.current) clearTimeout(motionTimer.current);
   }, []);
-
-  useEffect(() => {
-    if (!enteredHome) return;
-    const track = filmTrackRef.current;
-    const video = filmVideoRef.current;
-    if (!track || !video) return;
-
-    let frame = 0;
-    let lastUiProgress = -1;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const updateVideoFrame = () => {
-      frame = 0;
-      const trackTop = track.getBoundingClientRect().top;
-      const scrollDistance = Math.max(track.offsetHeight - window.innerHeight, 1);
-      const progress = reduceMotion.matches
-        ? 0
-        : Math.max(0, Math.min(1, -trackTop / scrollDistance));
-
-      if (video.readyState >= 1 && Number.isFinite(video.duration)) {
-        const targetTime = progress * video.duration;
-        if (Math.abs(video.currentTime - targetTime) > 0.035) video.currentTime = targetTime;
-      }
-
-      const roundedProgress = Math.round(progress * 100);
-      if (roundedProgress !== lastUiProgress) {
-        lastUiProgress = roundedProgress;
-        setScrollProgress(roundedProgress);
-      }
-    };
-    const requestUpdate = () => {
-      if (!frame) frame = requestAnimationFrame(updateVideoFrame);
-    };
-
-    window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate);
-    reduceMotion.addEventListener("change", requestUpdate);
-    requestUpdate();
-
-    return () => {
-      if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", requestUpdate);
-      window.removeEventListener("resize", requestUpdate);
-      reduceMotion.removeEventListener("change", requestUpdate);
-    };
-  }, [enteredHome]);
 
   useEffect(() => {
     const panel = panelRef.current;
@@ -184,62 +141,27 @@ export default function Home() {
 
   if (enteredHome) {
     return (
-      <main className="dashboard-shell">
+      <main className="dashboard-shell cinematic-shell">
         <aside className="dashboard-rail" aria-label="Saha Plus navigation">
           <a className="rail-brand" href="#overview" aria-label="Saha Plus overview"><span>+</span></a>
           <nav aria-label="Main menu">
             <a className="rail-link active" href="#overview" aria-label="Overview" title="Overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Overview</span></a>
-            <a className="rail-link" href="#wellbeing" aria-label="Your body" title="Your body"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><path d="M8 21v-5l-2-4 2-4h8l2 4-2 4v5M8 12h8M9 16h6"/></svg><span>Your body</span></a>
-            <a className="rail-link" href="#wellbeing" aria-label="Body scan" title="Body scan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v16M19 4v16M8 7h8M8 12h8M8 17h8"/></svg><span>Body scan</span></a>
-            <a className="rail-link" href="#profile" aria-label="My profile" title="My profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.7-3.2 3-5 6.5-5s5.8 1.8 6.5 5"/></svg><span>My profile</span></a>
+            <a className="rail-link" href="#head-mind" aria-label="Head and mind" title="Head and mind"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M9 18h6M10 21h4M12 3v2M7 6l1.5 1M17 6l-1.5 1"/></svg><span>Head and mind</span></a>
+            <a className="rail-link" href="#chest-heart" aria-label="Chest and heart" title="Chest and heart"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21S3 16 3 9.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 9 1.5C21 16 12 21 12 21Z"/><path d="M4 12h4l2-3 3 6 2-3h5"/></svg><span>Chest and heart</span></a>
+            <a className="rail-link" href="#core-digestion" aria-label="Core and digestion" title="Core and digestion"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3c2 2 1 4 0 6s-2 5 1 7 6 1 7-2-1-4-1-6 2-4 3-5M8 3h10M8 20h9"/><path d="M10 11h4M10 14h4"/></svg><span>Core and digestion</span></a>
+            <a className="rail-link" href="#legs-strength" aria-label="Legs and strength" title="Legs and strength"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v7l2 4-2 7M16 3v7l-2 4 2 7M8 10h8M8 14h8"/></svg><span>Legs and strength</span></a>
+            <a className="rail-link" href="#feet-mobility" aria-label="Feet and mobility" title="Feet and mobility"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4c0 5-1 7-2 10s1 6 5 6h8c2 0 3-1 3-2s-1-2-3-2h-4c-2 0-3-2-3-4V4"/><path d="M14 5h2M14 8h2M14 11h2"/></svg><span>Feet and mobility</span></a>
           </nav>
           <button className="rail-link rail-signout" type="button" aria-label="Sign out" title="Sign out" onClick={() => setEnteredHome(false)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10M14 8l4 4-4 4M8 12h10"/></svg><span>Sign out</span></button>
         </aside>
-        <div className="dashboard-scroll">
-          <section className="dashboard-intro" id="overview">
-            <p className="home-eyebrow">YOUR WELLNESS SPACE</p>
-            <h1>Your body,<br /><em>in focus.</em></h1>
-            <p className="home-intro">Scroll to move through a guided view from head to toe.</p>
-            <a className="scroll-cue" href="#wellbeing"><span>SCROLL TO EXPLORE</span><b aria-hidden="true">↓</b></a>
-          </section>
-          <section className="film-scroll-track" id="wellbeing" ref={filmTrackRef} aria-label="Scroll-controlled head-to-toe anatomy film">
-            <div className="story-stage">
-              <video
-                ref={filmVideoRef}
-                className={`anatomy-video${videoReady ? " is-ready" : ""}`}
-                muted
-                playsInline
-                preload="auto"
-                aria-label="Scroll to move through the male anatomy film from head to toe"
-                onLoadedMetadata={(event) => {
-                  const player = event.currentTarget;
-                  const track = filmTrackRef.current;
-                  if (Number.isFinite(player.duration)) {
-                    setVideoReady(true);
-                    setVideoFailed(false);
-                    if (track) {
-                      const distance = Math.max(track.offsetHeight - window.innerHeight, 1);
-                      const progress = Math.max(0, Math.min(1, -track.getBoundingClientRect().top / distance));
-                      player.currentTime = progress * player.duration;
-                    }
-                  }
-                }}
-                onLoadedData={() => { setVideoReady(true); setVideoFailed(false); }}
-                onCanPlay={() => { setVideoReady(true); setVideoFailed(false); }}
-                onError={() => { setVideoReady(false); setVideoFailed(true); }}
-              >
-                <source src="/media/anatomy-scroll.webm" type="video/webm; codecs=vp9" />
-                <source src="/media/anatomy-scroll.mp4" type="video/mp4" />
-              </video>
-              {!videoReady && <div className="film-placeholder" role="status"><span className="placeholder-mark" aria-hidden="true">＋</span><span className="stage-caption">ANATOMY FILM</span><strong>{videoFailed ? <>The film<br />couldn’t load.</> : <>Scroll to move<br />from head to toe</>}</strong><span className="placeholder-help">{videoFailed ? "Refresh the page to try again." : "Loading your anatomy film…"}</span></div>}
-              <div className="stage-progress" aria-hidden="true"><span>HEAD</span><div className="progress-track"><i style={{ transform: `scaleY(${scrollProgress / 100})` }} /></div><span>FEET</span></div>
-              <div className="film-progress-accessible" role="progressbar" aria-label="Body scan progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={scrollProgress} />
-              <span className="stage-caption stage-instruction">SCROLL TO MOVE THROUGH THE SCAN</span>
-              <span className="watermark-mask" aria-hidden="true" />
-            </div>
-          </section>
-          <footer className="dashboard-footer" id="profile"><span>SAHA PLUS · YOUR WELLNESS SPACE</span><span>Take your time. Move at your own pace.</span></footer>
-        </div>
+        <nav ref={bodyProgressRef} className="body-zone-progress" aria-label="Body zones">
+          <a data-body-zone href="#head-mind" aria-label="Go to Head and Mind"><i aria-hidden="true"/><span>HEAD</span></a>
+          <a data-body-zone href="#chest-heart" aria-label="Go to Chest and Heart"><i aria-hidden="true"/><span>CHEST</span></a>
+          <a data-body-zone href="#core-digestion" aria-label="Go to Core and Digestion"><i aria-hidden="true"/><span>CORE</span></a>
+          <a data-body-zone href="#legs-strength" aria-label="Go to Legs and Strength"><i aria-hidden="true"/><span>LEGS</span></a>
+          <a data-body-zone href="#feet-mobility" aria-label="Go to Feet and Mobility"><i aria-hidden="true"/><span>FEET</span></a>
+        </nav>
+        <BodyScene progressRef={bodyProgressRef} />
       </main>
     );
   }
