@@ -3,6 +3,7 @@
 import { Environment, Html, Scroll, ScrollControls, useGLTF, useProgress, useScroll } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { clone as cloneSkinnedScene } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject, type RefObject } from "react";
 
 const MODEL_PATH = "/models/human.glb";
@@ -40,6 +41,7 @@ const CAMERA_CONFIG = {
   finaleFadeStart: 0.93,
   finaleFadeEnd: 0.98,
   backToTopThreshold: 0.34,
+  skinTone: "#c9a58a",
 } as const;
 
 type CameraKeyframe = { t: number; y: number; distance: number; label: string };
@@ -91,7 +93,7 @@ function smoothKeyframe(progress: number, levels: ModelYLevels): { y: number; di
 function Model({ levelsRef }: { levelsRef: MutableRefObject<ModelYLevels | null> }) {
   const { scene } = useGLTF(MODEL_PATH);
   const fittedModel = useMemo(() => {
-    const model = scene.clone(true);
+    const model = cloneSkinnedScene(scene);
     model.updateMatrixWorld(true);
     const bounds = new THREE.Box3().setFromObject(model);
     const size = bounds.getSize(new THREE.Vector3());
@@ -131,12 +133,14 @@ function Model({ levelsRef }: { levelsRef: MutableRefObject<ModelYLevels | null>
             material.map.colorSpace = THREE.SRGBColorSpace;
             material.map.needsUpdate = true;
           }
-          if (!material.map && !hasVertexColors && material.color.r > 0.9 && material.color.g > 0.9 && material.color.b > 0.9) {
-            material.color.set("#c9a58a");
+          const colorChannels = [material.color.r, material.color.g, material.color.b];
+          const isNeutralClay = Math.max(...colorChannels) - Math.min(...colorChannels) < 0.1 && Math.max(...colorChannels) < 0.5;
+          if (!material.map && !hasVertexColors && isNeutralClay) {
+            material.color.set(CAMERA_CONFIG.skinTone);
             material.roughness = 0.65;
             material.metalness = 0;
             if (!appearanceLogged) {
-              console.info("[Saha Plus] Skin appearance: applied #c9a58a fallback to an untextured, nearly white material.");
+              console.info(`[Saha Plus] Skin appearance: applied ${CAMERA_CONFIG.skinTone} to the untextured neutral-gray base material.`);
               appearanceLogged = true;
             }
           } else if (!appearanceLogged) {
@@ -345,7 +349,7 @@ function StoryPages() {
         <section className="body-hero" id="overview" aria-label="Saha Plus body atlas">
           <div className="body-hero-topline"><span className="hero-status-dot" /> PERSONAL WELLNESS · BODY ATLAS</div>
           <div className="body-hero-copy"><p className="body-brand">SAHA <span>PLUS</span></p><h1>Your health,<br /><em>in focus.</em></h1><p>Explore the systems that help you move through every day.</p><a href="#head-mind" className="body-scroll-cue"><span>SCROLL TO EXPLORE</span><b aria-hidden="true">↓</b></a></div>
-          <p className="body-model-credit">3D model <a href="https://sketchfab.com/3d-models/male-body-base-be0810fb4fb3477091a408e8fc2d2e46" target="_blank" rel="noreferrer">“Male Body Base” by Luciano O. Mollo</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a></p>
+          <p className="body-model-credit">3D model <a href="https://www.innerscene.com/tools/library/3d-parts/male-base-mesh-3d-person-rigged-a-pose-380e6d89" target="_blank" rel="noreferrer">Male base mesh by Innerscene, adapted from MakeHuman</a> · <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noreferrer">CC0 1.0</a></p>
         </section>
         {BODY_SECTIONS.map((section, index) => (
           <section className={`body-zone body-zone-${section.side}`} id={section.id} key={section.id} ref={(element) => { sectionRefs.current[index] = element; }} aria-label={section.title} style={{ height: "100svh" }}>

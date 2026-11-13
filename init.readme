@@ -159,6 +159,13 @@
 - Added an accessible floating Back to top pill, visible after the head section. It shares the finale card’s scroll-to-top action and resets model rotation to front-facing.
 - Files changed: `src/components/BodyScene.tsx`, `src/app/page.tsx`, `src/app/globals.css`, `init.readme`.
 
+### Replace blank body base with a detailed, face-complete model
+
+- Replaced `public/models/human.glb` with Innerscene’s CC0 male base mesh, adapted from MakeHuman. The model is a 109k-triangle rigged adult figure with sculpted eyes, ears, face, hands, and feet; its static A-pose fits the existing head-to-feet camera journey.
+- Added `SkeletonUtils.clone` so the cloned skinned mesh retains its bone bindings. Retained the GLB’s original standard materials and normals, applying the site’s warm `#c9a58a` tone to its untextured neutral-gray clay material.
+- Updated the visible source/license credit to the Innerscene/MakeHuman CC0 asset.
+- Files changed: `public/models/human.glb`, `src/components/BodyScene.tsx`, `init.readme`.
+
 ## Verification
 
 - `npm run build` completed successfully after the 3D body atlas implementation (Next.js compile, lint, type validation, and static page generation passed). The built app also served `/models/human.glb` with HTTP 200.
