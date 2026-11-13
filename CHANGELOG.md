@@ -4,7 +4,7 @@
 
 - Removed the five floating metric cards and their leader lines, including the sleep, mood, and resting-heart-rate metrics; removed the Log mood quick action.
 - Added a custom SVG anatomy illustration with fine vascular and organ-inspired linework. Its scan trace advances from head to feet with the existing scroll progress, and the active region gains a soft highlight.
-- Kept the existing ScrollControls container and region navigation as the scroll driver. The 3D canvas output is visually hidden; its source component and GLB remain unchanged.
+- Kept the existing ScrollControls container and region navigation as the scroll driver. Illustration mode skips mounting the model, scene lights, camera animation, and model preload, so the old GLB is no longer requested. Camera and scroll logic remain available for the 3D mode.
 - Verification: `npm run lint`, `npx tsc --noEmit`, and `npm run build` pass.
 - No new dependency or model asset was added.
 
@@ -20,4 +20,6 @@
 - `src/app/globals.css` — design tokens, layered background, typography, glass components, responsive and reduced-motion styling.
 - `src/app/page.tsx` — dashboard overlay and descriptive region navigation labels.
 - `src/components/DashboardUI.tsx` — metric cards, summary rings, region panels, hotspots, and quick actions.
+- `src/components/AnatomyIllustration.tsx` — custom SVG anatomy and scroll-driven scan trace.
 - `src/data/mockHealth.ts` — typed editable mock data.
+- `src/components/BodyScene.tsx` and `src/app/page.tsx` — select illustration mode while retaining the existing scroll driver.

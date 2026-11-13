@@ -208,7 +208,8 @@
 
 - Removed the five floating health metric cards, associated leader lines, and the Log mood action (including the sleep, mood, and resting-heart-rate items).
 - Replaced the visible 3D body with a custom luminous SVG body illustration. A scan trace advances head to toe as the existing ScrollControls page moves, and each active region receives a subtle linework highlight.
-- Kept the existing scroll container, region navigation, camera code, model file, and 3D scene source unchanged; only the WebGL canvas pixels are hidden while the scroll HTML remains active.
-- Files changed: `src/app/globals.css`, `src/components/DashboardUI.tsx`, `src/components/AnatomyIllustration.tsx`, `src/data/mockHealth.ts`, `CHANGELOG.md`, `init.readme`.
+- Kept the existing ScrollControls container, region navigation, and camera/scroll logic. Illustration mode skips mounting the 3D model, lights, and camera animation and does not preload the GLB; the asset remains untouched in the repository.
+- Files changed: `src/app/globals.css`, `src/app/page.tsx`, `src/components/BodyScene.tsx`, `src/components/DashboardUI.tsx`, `src/components/AnatomyIllustration.tsx`, `src/data/mockHealth.ts`, `CHANGELOG.md`, `init.readme`.
 - Pushed `17204bb` (`Replace anatomy model visual with scroll-linked SVG`) to `origin/main`.
+- Pushed `ef590b2` (`Keep scroll driver without loading body model`) to `origin/main`.
 - Verification: `npm run lint`, `npx tsc --noEmit`, and `npm run build` passed.
