@@ -167,7 +167,7 @@ export default function Home() {
           <a data-body-zone="finale" href="#finale" aria-label="Go to Finale" title="Finale"><i aria-hidden="true"/><span>FINALE</span></a>
         </nav>
         <div className="body-atlas-ring" aria-hidden="true" />
-        <BodyScene progressRef={bodyProgressRef} controlsRef={bodySceneControlsRef} backToTopRef={bodyBackTopRef} />
+        <BodyScene progressRef={bodyProgressRef} controlsRef={bodySceneControlsRef} backToTopRef={bodyBackTopRef} renderModel={false} />
         <DashboardUI progressRef={bodyProgressRef} />
         <button ref={bodyBackTopRef} className="body-back-top" type="button" aria-label="Back to top" tabIndex={-1} onClick={() => bodySceneControlsRef.current?.goToTop()}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" /></svg><span>Back to top</span>

@@ -66,7 +66,7 @@ const BODY_SECTIONS = [
 ] as const;
 
 type BodySceneControls = { goToTop: () => void };
-type BodySceneProps = { progressRef: RefObject<HTMLElement>; controlsRef: MutableRefObject<BodySceneControls | null>; backToTopRef: RefObject<HTMLButtonElement | null> };
+type BodySceneProps = { progressRef: RefObject<HTMLElement>; controlsRef: MutableRefObject<BodySceneControls | null>; backToTopRef: RefObject<HTMLButtonElement | null>; renderModel?: boolean };
 let modelDiagnosticsLogged = false;
 let appearanceLogged = false;
 
@@ -453,17 +453,18 @@ function LightsAndModel({ levelsRef, keyLightRef, modelRef, rotationResetRef }: 
   </>;
 }
 
-export default function BodyScene({ progressRef, controlsRef, backToTopRef }: BodySceneProps) {
+export default function BodyScene({ progressRef, controlsRef, backToTopRef, renderModel = true }: BodySceneProps) {
   const levelsRef = useRef<ModelYLevels | null>(null);
   const keyLightRef = useRef<THREE.DirectionalLight | null>(null);
   const modelRef = useRef<THREE.Group | null>(null);
   const rotationResetRef = useRef(false);
   return <Canvas className="body-scene-canvas" style={{ background: "transparent" }} dpr={[1, 1.5]} camera={{ position: [0, 2, 11.5], fov: CAMERA_CONFIG.cameraFov, near: 0.1, far: 50 }} gl={{ antialias: true, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: CAMERA_CONFIG.exposure }}>
     <Suspense fallback={<LoadingScreen />}><ScrollControls pages={CAMERA_CONFIG.pages} damping={CAMERA_CONFIG.scrollDamping} style={{ touchAction: "pan-y", overscrollBehavior: "contain" }}>
-      <LightsAndModel levelsRef={levelsRef} keyLightRef={keyLightRef} modelRef={modelRef} rotationResetRef={rotationResetRef} />
-      <SceneCamera levelsRef={levelsRef} /><FinaleEffects keyLightRef={keyLightRef} modelRef={modelRef} /><StoryPages /><ScrollOverlays rotationResetRef={rotationResetRef} controlsRef={controlsRef} backToTopRef={backToTopRef} /><ZoneProgress progressRef={progressRef} />
+      {renderModel && <>
+        <LightsAndModel levelsRef={levelsRef} keyLightRef={keyLightRef} modelRef={modelRef} rotationResetRef={rotationResetRef} />
+        <SceneCamera levelsRef={levelsRef} /><FinaleEffects keyLightRef={keyLightRef} modelRef={modelRef} />
+      </>}
+      <StoryPages /><ScrollOverlays rotationResetRef={rotationResetRef} controlsRef={controlsRef} backToTopRef={backToTopRef} /><ZoneProgress progressRef={progressRef} />
     </ScrollControls></Suspense>
   </Canvas>;
 }
-
-useGLTF.preload(MODEL_PATH);
