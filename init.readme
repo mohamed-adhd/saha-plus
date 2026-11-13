@@ -1,0 +1,20 @@
+# Saha Plus Work Log
+
+## Project
+
+- Next.js 14 app in `src/app`.
+- Start locally with `npm run dev`.
+
+## Completed
+
+### Login screen and interactive plus field
+
+- Replaced the default Next.js starter page with a responsive Saha Plus sign-in screen.
+- Added a green welcome panel filled with drifting plus signs.
+- Plus signs respond to pointer movement, and pointer presses create a spreading ripple.
+- Added reduced-motion handling and a compact mobile layout.
+- Files changed: `src/app/page.tsx`, `src/app/globals.css`.
+
+## Verification
+
+- `npm run build` was started; record the final result here when available.
