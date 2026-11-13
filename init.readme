@@ -23,6 +23,14 @@
 - Kept the existing login layout and styling intact for this refinement.
 - Files changed: `src/app/page.tsx`, `src/app/globals.css`.
 
+### Reference-matched particle field
+
+- Matched the supplied recording's dense, evenly spaced particle field using 1,444 plus signs.
+- Changed the welcome panel from green to deep blue.
+- Plus signs softly blink and grow, brighten, and shift around the pointer.
+- Kept the existing login layout and copy intact.
+- Files changed: `src/app/page.tsx`, `src/app/globals.css`.
+
 ## Verification
 
 - `npm run build` was started; record the final result here when available.

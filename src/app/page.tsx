@@ -1,40 +1,36 @@
 "use client";
 
-import { PointerEvent, useState } from "react";
+import { PointerEvent, useRef, useState } from "react";
 
-const marks = Array.from({ length: 260 }, (_, index) => {
-  const random = (seed: number) => {
-    const value = Math.sin((index + 1) * seed * 127.1) * 43758.5453;
-    return value - Math.floor(value);
-  };
-
-  return {
-    id: index,
-    x: random(1.17) * 100,
-    y: random(2.39) * 100,
-    delay: -random(3.71) * 24,
-    duration: 15 + random(5.13) * 20,
-    size: 28 + random(7.19) * 22,
-  };
-});
+const columns = 38;
+const rows = 38;
+const marks = Array.from({ length: columns * rows }, (_, index) => ({
+  id: index,
+  x: ((index % columns) + 0.5) * (100 / columns),
+  y: (Math.floor(index / columns) + 0.5) * (100 / rows),
+  blinkDelay: -((index * 13) % 50) / 10,
+}));
 
 export default function Home() {
+  const panelRef = useRef<HTMLElement>(null);
   const [pointer, setPointer] = useState({ x: -1000, y: -1000 });
   const [ripple, setRipple] = useState({ x: -1000, y: -1000, key: 0 });
 
   function movePointer(event: PointerEvent<HTMLElement>) {
-    const bounds = event.currentTarget.getBoundingClientRect();
-    setPointer({ x: ((event.clientX - bounds.left) / bounds.width) * 100, y: ((event.clientY - bounds.top) / bounds.height) * 100 });
+    const bounds = panelRef.current?.getBoundingClientRect();
+    if (!bounds) return;
+    setPointer({ x: event.clientX - bounds.left, y: event.clientY - bounds.top });
   }
 
   function startRipple(event: PointerEvent<HTMLElement>) {
-    const bounds = event.currentTarget.getBoundingClientRect();
+    const bounds = panelRef.current?.getBoundingClientRect();
+    if (!bounds) return;
     setRipple({ x: event.clientX - bounds.left, y: event.clientY - bounds.top, key: Date.now() });
   }
 
   return (
     <main className="login-shell">
-      <section className="welcome-panel" onPointerMove={movePointer} onPointerDown={startRipple} aria-label="Saha Plus">
+      <section ref={panelRef} className="welcome-panel" onPointerMove={movePointer} onPointerDown={startRipple} aria-label="Saha Plus">
         <div className="plus-field" aria-hidden="true">
           {marks.map((mark) => (
             <span
@@ -43,12 +39,10 @@ export default function Home() {
               style={{
                 left: `${mark.x}%`,
                 top: `${mark.y}%`,
-                animationDelay: `${mark.delay}s`,
-                animationDuration: `${mark.duration}s`,
-                fontSize: `${mark.size}px`,
-                "--near": `${Math.max(0, 1 - Math.hypot((mark.x - pointer.x) * 3.4, (mark.y - pointer.y) * 5.2) / 125)}`,
-                "--dx": `${Math.max(-1, Math.min(1, (mark.x - pointer.x) / 14)) * 19}px`,
-                "--dy": `${Math.max(-1, Math.min(1, (mark.y - pointer.y) / 14)) * 19}px`,
+                animationDelay: `${mark.blinkDelay}s`,
+                "--near": `${Math.max(0, 1 - Math.hypot((mark.x / 100 * (panelRef.current?.clientWidth ?? 420)) - pointer.x, (mark.y / 100 * (panelRef.current?.clientHeight ?? 760)) - pointer.y) / 180)}`,
+                "--dx": `${Math.max(-1, Math.min(1, (mark.x / 100 * (panelRef.current?.clientWidth ?? 420) - pointer.x) / 100)) * 8}px`,
+                "--dy": `${Math.max(-1, Math.min(1, (mark.y / 100 * (panelRef.current?.clientHeight ?? 760) - pointer.y) / 100)) * 8}px`,
               } as React.CSSProperties}
             >+</span>
           ))}
