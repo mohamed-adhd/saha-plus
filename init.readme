@@ -203,3 +203,12 @@
 
 - Pushed `e56ef5d` (`Refine wellness atlas dashboard UI`) to `origin/main`.
 - Pushed `a9bd7ae` (`Document dashboard UI refinement`) to `origin/main`.
+
+### Scroll-scrubbed anatomical illustration and metric-card removal
+
+- Removed the five floating health metric cards, associated leader lines, and the Log mood action (including the sleep, mood, and resting-heart-rate items).
+- Replaced the visible 3D body with a custom luminous SVG body illustration. A scan trace advances head to toe as the existing ScrollControls page moves, and each active region receives a subtle linework highlight.
+- Kept the existing scroll container, region navigation, camera code, model file, and 3D scene source unchanged; only the WebGL canvas pixels are hidden while the scroll HTML remains active.
+- Files changed: `src/app/globals.css`, `src/components/DashboardUI.tsx`, `src/components/AnatomyIllustration.tsx`, `src/data/mockHealth.ts`, `CHANGELOG.md`, `init.readme`.
+- Pushed `17204bb` (`Replace anatomy model visual with scroll-linked SVG`) to `origin/main`.
+- Verification: `npm run lint`, `npx tsc --noEmit`, and `npm run build` passed.

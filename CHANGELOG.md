@@ -1,5 +1,13 @@
 # Dashboard UI refinement
 
+## Latest iteration: scroll-linked illustration
+
+- Removed the five floating metric cards and their leader lines, including the sleep, mood, and resting-heart-rate metrics; removed the Log mood quick action.
+- Added a custom SVG anatomy illustration with fine vascular and organ-inspired linework. Its scan trace advances from head to feet with the existing scroll progress, and the active region gains a soft highlight.
+- Kept the existing ScrollControls container and region navigation as the scroll driver. The 3D canvas output is visually hidden; its source component and GLB remain unchanged.
+- Verification: `npm run lint`, `npx tsc --noEmit`, and `npm run build` pass.
+- No new dependency or model asset was added.
+
 - Added a dark glass dashboard overlay with five metric cards, sparklines, health trends, leader lines, and a compact activity summary.
 - Added region detail panels, overview-only hotspots, active navigation states, tooltips, responsive layouts, reduced-motion support, and accessible quick-action forms with confirmation toasts.
 - Added CSS theme variables and layered green background treatment. Kept the existing body scene, scroll/camera logic, and model assets unchanged.
