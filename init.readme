@@ -101,9 +101,16 @@
 - Added a sign-out action to return to the sign-in screen.
 - Files changed: `src/app/page.tsx`, `src/app/globals.css`.
 
+### Collapsible navigation rail and scroll-story dashboard
+
+- Replaced the full-width dashboard tab bar with a fixed left icon rail that expands to show tab names on hover or keyboard focus.
+- Reframed the dashboard as a scroll story with three short chapters and a sticky anatomy-film placeholder ready for the generated video.
+- Added responsive rail and story-stage layouts.
+- Files changed: `src/app/page.tsx`, `src/app/globals.css`.
+
 ## Verification
 
-- `npm run build` completed successfully (Next.js compile, lint, type validation, and static page generation passed).
+- `npm run build` completed successfully after the scroll-story dashboard changes (Next.js compile, lint, type validation, and static page generation passed).
 
 ## Push log
 

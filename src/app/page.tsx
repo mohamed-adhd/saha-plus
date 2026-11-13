@@ -134,23 +134,52 @@ export default function Home() {
 
   if (enteredHome) {
     return (
-      <main className="home-shell">
-        <header className="home-header">
-          <a className="home-brand" href="#home"><span className="brand-symbol">+</span> saha<span>plus</span></a>
-          <nav aria-label="Main menu"><a className="active" href="#overview">Overview</a><a href="#wellbeing">Wellbeing</a><a href="#appointments">Appointments</a><a href="#profile">My profile</a></nav>
-          <button className="profile-button" type="button" onClick={() => setEnteredHome(false)}>Sign out</button>
-        </header>
-        <section className="home-content" id="overview">
-          <p className="home-eyebrow">YOUR WELLNESS SPACE</p>
-          <h1>Welcome to your<br /><em>space to feel better.</em></h1>
-          <p className="home-intro">Your Saha Plus journey starts with one small step. Choose where you’d like to begin.</p>
-          <div className="home-cards">
-            <a href="#wellbeing"><span className="home-card-icon">✳</span><span className="home-card-label">DAILY CARE</span><strong>Check in with yourself</strong><span className="home-card-link">Explore your wellbeing <b>→</b></span></a>
-            <a href="#appointments"><span className="home-card-icon">◷</span><span className="home-card-label">YOUR CARE</span><strong>Plan your next step</strong><span className="home-card-link">View appointments <b>→</b></span></a>
-            <a href="#profile"><span className="home-card-icon">＋</span><span className="home-card-label">PERSONAL SPACE</span><strong>Make it yours</strong><span className="home-card-link">Complete your profile <b>→</b></span></a>
-          </div>
-          <p className="home-privacy">Your information stays private and always treated with care.</p>
-        </section>
+      <main className="dashboard-shell">
+        <aside className="dashboard-rail" aria-label="Saha Plus navigation">
+          <a className="rail-brand" href="#overview" aria-label="Saha Plus overview"><span>+</span></a>
+          <nav aria-label="Main menu">
+            <a className="rail-link active" href="#overview" aria-label="Overview" title="Overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Overview</span></a>
+            <a className="rail-link" href="#wellbeing" aria-label="Your body" title="Your body"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><path d="M8 21v-5l-2-4 2-4h8l2 4-2 4v5M8 12h8M9 16h6"/></svg><span>Your body</span></a>
+            <a className="rail-link" href="#journey" aria-label="Care journey" title="Care journey"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2M8 2.8l-2 2M16 2.8l2 2"/></svg><span>Care journey</span></a>
+            <a className="rail-link" href="#profile" aria-label="My profile" title="My profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.7-3.2 3-5 6.5-5s5.8 1.8 6.5 5"/></svg><span>My profile</span></a>
+          </nav>
+          <button className="rail-link rail-signout" type="button" aria-label="Sign out" title="Sign out" onClick={() => setEnteredHome(false)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10M14 8l4 4-4 4M8 12h10"/></svg><span>Sign out</span></button>
+        </aside>
+        <div className="dashboard-scroll">
+          <section className="dashboard-intro" id="overview">
+            <p className="home-eyebrow">YOUR WELLNESS SPACE</p>
+            <h1>A clearer view<br /><em>of your wellbeing.</em></h1>
+            <p className="home-intro">Get to know your body, one step at a time.</p>
+            <a className="scroll-cue" href="#wellbeing"><span>SCROLL TO EXPLORE</span><b aria-hidden="true">↓</b></a>
+          </section>
+          <section className="story-layout" id="wellbeing" aria-label="Your body, in focus">
+            <div className="story-chapters">
+              <article className="story-chapter">
+                <span className="chapter-number">01 / A CLOSER LOOK</span>
+                <h2>Your body,<br /><em>in focus.</em></h2>
+                <p>A guided visual introduction to the remarkable systems that work together every day.</p>
+              </article>
+              <article className="story-chapter" id="journey">
+                <span className="chapter-number">02 / UNDERSTAND</span>
+                <h2>See how it<br /><em>all connects.</em></h2>
+                <p>As you move through the story, the view will reveal more of the human body.</p>
+              </article>
+              <article className="story-chapter" id="profile">
+                <span className="chapter-number">03 / YOUR JOURNEY</span>
+                <h2>Knowledge is<br /><em>a first step.</em></h2>
+                <p>Explore at your own pace. Your personal wellness space is here whenever you need it.</p>
+              </article>
+            </div>
+            <div className="story-stage-wrap">
+              <div className="story-stage" aria-label="Anatomy video will appear here">
+                <div className="stage-orbit stage-orbit-one" /><div className="stage-orbit stage-orbit-two" />
+                <div className="stage-person" aria-hidden="true"><span className="person-head"/><span className="person-torso"/><span className="person-arm person-arm-left"/><span className="person-arm person-arm-right"/><span className="person-leg person-leg-left"/><span className="person-leg person-leg-right"/></div>
+                <div className="stage-caption"><span className="stage-live-dot"/> ANATOMY FILM · COMING SOON</div>
+                <p className="stage-note">Your body, brought<br />to life as you scroll.</p>
+              </div>
+            </div>
+          </section>
+        </div>
       </main>
     );
   }
