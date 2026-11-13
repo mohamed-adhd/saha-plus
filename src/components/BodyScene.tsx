@@ -3,7 +3,7 @@
 import { Environment, Html, Scroll, ScrollControls, useGLTF, useProgress, useScroll } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { Suspense, useMemo, useRef, useState, type MutableRefObject, type RefObject } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject, type RefObject } from "react";
 
 const MODEL_PATH = "/models/human.glb";
 const CAMERA_CONFIG = {
@@ -34,17 +34,26 @@ const CAMERA_CONFIG = {
   rotationInertiaDecay: 5,
   idleReturnDelay: 5000,
   returnSpeed: 2.5,
+  feetProgress: 0.8,
+  pullbackStart: 5 / 6,
+  pullbackEnd: 0.98,
+  finaleFadeStart: 0.93,
+  finaleFadeEnd: 0.98,
+  backToTopThreshold: 0.34,
 } as const;
 
 type CameraKeyframe = { t: number; y: number; distance: number; label: string };
 type ModelYLevels = { head: number; chest: number; core: number; feet: number };
+const HERO_KEYFRAME = { t: 0, y: CAMERA_CONFIG.modelHeight / 2, distance: 11.5, label: "hero" } as const;
 const CAMERA_KEYFRAMES: CameraKeyframe[] = [
-  { t: 0, y: 2, distance: 11.5, label: "hero" },
+  HERO_KEYFRAME,
   { t: 0.18, y: 0, distance: CAMERA_CONFIG.headDistance, label: "head" },
   { t: 0.38, y: 0, distance: CAMERA_CONFIG.chestDistance, label: "chest" },
   { t: 0.58, y: 0, distance: CAMERA_CONFIG.coreDistance, label: "core" },
-  { t: 0.8, y: 0, distance: CAMERA_CONFIG.coreDistance, label: "feet" },
-  { t: 1, y: 0, distance: CAMERA_CONFIG.coreDistance, label: "hold" },
+  { t: CAMERA_CONFIG.feetProgress, y: 0, distance: CAMERA_CONFIG.coreDistance, label: "feet" },
+  { t: CAMERA_CONFIG.pullbackStart, y: 0, distance: CAMERA_CONFIG.coreDistance, label: "feet-hold" },
+  { t: CAMERA_CONFIG.pullbackEnd, y: HERO_KEYFRAME.y, distance: HERO_KEYFRAME.distance, label: "pullback" },
+  { t: 1, y: HERO_KEYFRAME.y, distance: HERO_KEYFRAME.distance, label: "finale-hold" },
 ];
 
 const BODY_SECTIONS = [
@@ -54,15 +63,17 @@ const BODY_SECTIONS = [
   { id: "legs-strength", title: "Legs and Strength", description: "Large muscle groups help you stand, walk, climb and move through the day.", detail: "Strength, balance and mobility work together in many ordinary movements.", zone: "LEGS", side: "right" },
 ] as const;
 
-type BodySceneProps = { progressRef: RefObject<HTMLElement> };
+type BodySceneControls = { goToTop: () => void };
+type BodySceneProps = { progressRef: RefObject<HTMLElement>; controlsRef: MutableRefObject<BodySceneControls | null>; backToTopRef: RefObject<HTMLButtonElement | null> };
 let modelDiagnosticsLogged = false;
 let appearanceLogged = false;
 
 function smoothKeyframe(progress: number, levels: ModelYLevels): { y: number; distance: number } {
   const frames = CAMERA_KEYFRAMES.map((frame) => ({
     ...frame,
-    y: frame.label === "hero" ? levels.core : frame.label === "head" ? levels.head :
-      frame.label === "chest" ? levels.chest : frame.label === "core" ? levels.core : levels.feet,
+    y: frame.label === "hero" || frame.label === "pullback" || frame.label === "finale-hold" ? HERO_KEYFRAME.y :
+      frame.label === "head" ? levels.head : frame.label === "chest" ? levels.chest :
+      frame.label === "core" ? levels.core : levels.feet,
   }));
   let next = frames.findIndex((frame) => frame.t >= progress);
   if (next <= 0) return { y: frames[0].y, distance: frames[0].distance };
@@ -173,7 +184,7 @@ function Model({ levelsRef }: { levelsRef: MutableRefObject<ModelYLevels | null>
 type DragAxis = "pending" | "rotate" | "scroll";
 type DragState = { active: boolean; pointerId: number; axis: DragAxis; startX: number; startY: number; lastX: number; lastMoveAt: number; startRotation: number; totalX: number };
 
-function ModelRig({ levelsRef, modelRef }: { levelsRef: MutableRefObject<ModelYLevels | null>; modelRef: MutableRefObject<THREE.Group | null> }) {
+function ModelRig({ levelsRef, modelRef, rotationResetRef }: { levelsRef: MutableRefObject<ModelYLevels | null>; modelRef: MutableRefObject<THREE.Group | null>; rotationResetRef: MutableRefObject<boolean> }) {
   const { gl } = useThree();
   const scroll = useScroll();
   const drag = useRef<DragState>({ active: false, pointerId: -1, axis: "pending", startX: 0, startY: 0, lastX: 0, lastMoveAt: 0, startRotation: 0, totalX: 0 });
@@ -199,6 +210,16 @@ function ModelRig({ levelsRef, modelRef }: { levelsRef: MutableRefObject<ModelYL
     const group = modelRef.current;
     if (!group) return;
     const state = drag.current;
+    if (rotationResetRef.current) {
+      rotationResetRef.current = false;
+      state.active = false;
+      velocity.current = 0;
+      targetRotation.current = 0;
+      group.rotation.y = 0;
+      lastInteractionTime.current = performance.now();
+      setCursor("default");
+      return;
+    }
     if (!state.active && performance.now() - lastInteractionTime.current >= CAMERA_CONFIG.idleReturnDelay) {
       velocity.current = 0;
       const shortest = THREE.MathUtils.euclideanModulo(-group.rotation.y + Math.PI, Math.PI * 2) - Math.PI;
@@ -215,9 +236,13 @@ function ModelRig({ levelsRef, modelRef }: { levelsRef: MutableRefObject<ModelYL
     group.rotation.y = THREE.MathUtils.damp(group.rotation.y, group.rotation.y + difference, CAMERA_CONFIG.rotationSmoothing, delta);
   });
 
-  return <group
-    ref={modelRef}
+  return <>
+  <group ref={modelRef} position={[0, CAMERA_CONFIG.modelHeight / 2, 0]}>
+    <group position={[0, -CAMERA_CONFIG.modelHeight / 2, 0]}><Model levelsRef={levelsRef} /></group>
+  </group>
+    <mesh
     position={[0, CAMERA_CONFIG.modelHeight / 2, 0]}
+    renderOrder={-1}
     onPointerOver={() => setCursor("grab")}
     onPointerOut={() => { if (!drag.current.active) setCursor("default"); }}
     onPointerDown={(event) => {
@@ -265,14 +290,10 @@ function ModelRig({ levelsRef, modelRef }: { levelsRef: MutableRefObject<ModelYL
     onPointerCancel={(event) => finishDrag(event, true)}
     onPointerLeave={(event) => finishDrag(event, true)}
   >
-    <group position={[0, -CAMERA_CONFIG.modelHeight / 2, 0]}>
-      <Model levelsRef={levelsRef} />
-      <mesh position={[0, CAMERA_CONFIG.modelHeight / 2, 0]}>
-        <boxGeometry args={[2.8, CAMERA_CONFIG.modelHeight + 0.2, 1.2]} />
-        <meshBasicMaterial transparent opacity={0} colorWrite={false} depthWrite={false} />
-      </mesh>
-    </group>
-  </group>;
+    <cylinderGeometry args={[1.45, 1.45, CAMERA_CONFIG.modelHeight + 0.2, 32]} />
+    <meshBasicMaterial transparent opacity={0} depthWrite={false} depthTest={false} colorWrite={false} />
+  </mesh>
+  </>;
 }
 
 function SceneCamera({ levelsRef }: { levelsRef: MutableRefObject<ModelYLevels | null> }) {
@@ -303,7 +324,6 @@ function LoadingScreen() {
 function StoryPages() {
   const scroll = useScroll();
   const sectionRefs = useRef<Array<HTMLElement | null>>([]);
-  const finaleRef = useRef<HTMLElement | null>(null);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   useFrame(() => {
     const pageLength = 1 / CAMERA_CONFIG.pages;
@@ -318,9 +338,7 @@ function StoryPages() {
       element.style.transform = `translate3d(0, ${(1 - opacity) * 16}px, 0)`;
     };
     BODY_SECTIONS.forEach((_, index) => fade(sectionRefs.current[index], (index + 1) * pageLength, pageLength));
-    fade(finaleRef.current, 5 * pageLength, pageLength);
   });
-  const backToTop = () => scroll.el?.scrollTo({ top: 0, behavior: "smooth" });
   return (
     <Scroll html>
       <div className="body-story-pages">
@@ -334,19 +352,67 @@ function StoryPages() {
             <div className="body-zone-card"><span className="body-zone-number">0{index + 1} <i /> {section.zone}</span><h2>{section.title}</h2><p>{section.description}</p>{expandedSection === section.id && <p className="body-zone-detail">{section.detail}</p>}<button type="button" className="body-learn-more" aria-expanded={expandedSection === section.id} onClick={() => setExpandedSection(expandedSection === section.id ? null : section.id)}>{expandedSection === section.id ? "Close details" : "Learn more"}<span aria-hidden="true">↗</span></button></div>
           </section>
         ))}
-        <section className="body-zone body-finale" id="finale" ref={finaleRef} aria-label="Your wellness journey" style={{ height: "100svh" }}>
-          <div className="finale-card"><span className="body-zone-number">05 <i /> FINALE</span><h2>Your body.<br />Your data.<br /><em>Your journey.</em></h2><p>Track, understand and improve your health every day.</p><div className="finale-actions"><a className="finale-primary" href="#overview">Go to dashboard <span aria-hidden="true">→</span></a><button className="finale-secondary" type="button" onClick={backToTop}>Back to top <span aria-hidden="true">↑</span></button></div></div>
-        </section>
+        <section className="body-finale-spacer" id="finale" aria-label="Finale" style={{ height: "100svh" }} />
       </div>
     </Scroll>
   );
+}
+
+function ScrollOverlays({ rotationResetRef, controlsRef, backToTopRef }: { rotationResetRef: MutableRefObject<boolean>; controlsRef: MutableRefObject<BodySceneControls | null>; backToTopRef: RefObject<HTMLButtonElement | null> }) {
+  const scroll = useScroll();
+  const finaleRef = useRef<HTMLDivElement | null>(null);
+  const goToTop = useCallback(() => {
+    rotationResetRef.current = true;
+    scroll.el?.scrollTo({ top: 0, behavior: "smooth" });
+  }, [rotationResetRef, scroll]);
+  useEffect(() => {
+    controlsRef.current = { goToTop };
+    return () => { controlsRef.current = null; };
+  }, [controlsRef, goToTop]);
+  useFrame(() => {
+    const progress = THREE.MathUtils.clamp(scroll.offset, 0, 1);
+    const finaleAlpha = THREE.MathUtils.smoothstep(progress, CAMERA_CONFIG.finaleFadeStart, CAMERA_CONFIG.finaleFadeEnd);
+    const finale = finaleRef.current;
+    if (finale) {
+      finale.style.opacity = `${finaleAlpha}`;
+      finale.style.visibility = finaleAlpha > 0.01 ? "visible" : "hidden";
+      finale.style.transform = `translate(-50%, calc(-50% + ${(1 - finaleAlpha) * 16}px))`;
+      finale.style.pointerEvents = finaleAlpha > 0.9 ? "auto" : "none";
+      finale.setAttribute("aria-hidden", finaleAlpha > 0.9 ? "false" : "true");
+      finale.querySelectorAll<HTMLElement>("a, button").forEach((control) => { control.tabIndex = finaleAlpha > 0.9 ? 0 : -1; });
+    }
+    const topAlpha = THREE.MathUtils.smoothstep(progress, CAMERA_CONFIG.backToTopThreshold - 0.035, CAMERA_CONFIG.backToTopThreshold + 0.04);
+    const backToTop = backToTopRef.current;
+    if (backToTop) {
+      backToTop.style.opacity = `${topAlpha}`;
+      backToTop.style.visibility = topAlpha > 0.01 ? "visible" : "hidden";
+      backToTop.style.transform = `translateY(${(1 - topAlpha) * 12}px)`;
+      backToTop.style.pointerEvents = topAlpha > 0.9 ? "auto" : "none";
+      backToTop.tabIndex = topAlpha > 0.9 ? 0 : -1;
+    }
+  });
+  return <Html fullscreen style={{ pointerEvents: "none" }}>
+    <div className="body-fixed-overlays">
+      <div className="finale-card body-fixed-finale" ref={finaleRef} aria-hidden="true">
+        <span className="body-zone-number">05 <i /> FINALE</span>
+        <h2>Your body.<br />Your data.<br /><em>Your journey.</em></h2>
+        <p>Track, understand and improve your health every day.</p>
+        <div className="finale-actions">
+          <a className="finale-primary" href="#overview">Go to dashboard <span aria-hidden="true">→</span></a>
+          <button className="finale-secondary" type="button" onClick={goToTop}>Back to top <span aria-hidden="true">↑</span></button>
+        </div>
+      </div>
+    </div>
+  </Html>;
 }
 
 function ZoneProgress({ progressRef }: { progressRef: RefObject<HTMLElement> }) {
   const scroll = useScroll();
   useFrame(() => {
     const page = Math.max(0, scroll.offset * CAMERA_CONFIG.pages - 1);
-    const activeIndex = Math.min(BODY_SECTIONS.length, Math.floor(page));
+    const activeIndex = scroll.offset >= CAMERA_CONFIG.pullbackStart
+      ? BODY_SECTIONS.length
+      : Math.min(BODY_SECTIONS.length - 1, Math.floor(page));
     progressRef.current?.querySelectorAll<HTMLElement>("[data-body-zone]").forEach((element, index) => {
       element.classList.toggle("is-active", index === activeIndex);
       if (index === activeIndex) element.setAttribute("aria-current", "step");
@@ -356,45 +422,42 @@ function ZoneProgress({ progressRef }: { progressRef: RefObject<HTMLElement> }) 
   return null;
 }
 
-function FinaleEffects({ keyLightRef, ringRef, modelRef }: { keyLightRef: MutableRefObject<THREE.DirectionalLight | null>; ringRef: MutableRefObject<THREE.MeshBasicMaterial | null>; modelRef: MutableRefObject<THREE.Group | null> }) {
+function FinaleEffects({ keyLightRef, modelRef }: { keyLightRef: MutableRefObject<THREE.DirectionalLight | null>; modelRef: MutableRefObject<THREE.Group | null> }) {
   const scroll = useScroll();
   useFrame((_, delta) => {
-    const finale = THREE.MathUtils.smoothstep(scroll.offset, 0.83, 0.97);
-    if (keyLightRef.current) keyLightRef.current.intensity = THREE.MathUtils.damp(keyLightRef.current.intensity, CAMERA_CONFIG.keyLight * (1 - finale * 0.55), 2.5, delta);
-    if (ringRef.current) ringRef.current.opacity = 0.34 + finale * (0.16 + Math.sin(performance.now() * 0.0017) * 0.08);
+    const finale = THREE.MathUtils.smoothstep(scroll.offset, CAMERA_CONFIG.finaleFadeStart, CAMERA_CONFIG.finaleFadeEnd);
+    if (keyLightRef.current) keyLightRef.current.intensity = THREE.MathUtils.damp(keyLightRef.current.intensity, CAMERA_CONFIG.keyLight * (1 - finale * 0.18), 2.5, delta);
     if (modelRef.current) modelRef.current.traverse((object) => {
       const mesh = object as THREE.Mesh;
       if (!mesh.isMesh) return;
       const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-      mats.forEach((material) => { material.transparent = finale > 0.01; material.opacity = 1 - finale * 0.18; material.depthWrite = finale < 0.01; });
+      mats.forEach((material) => { material.transparent = finale > 0.01; material.opacity = 1 - finale * 0.08; material.depthWrite = finale < 0.01; });
     });
   });
   return null;
 }
 
-function LightsAndModel({ levelsRef, keyLightRef, ringRef, modelRef }: { levelsRef: MutableRefObject<ModelYLevels | null>; keyLightRef: MutableRefObject<THREE.DirectionalLight | null>; ringRef: MutableRefObject<THREE.MeshBasicMaterial | null>; modelRef: MutableRefObject<THREE.Group | null> }) {
+function LightsAndModel({ levelsRef, keyLightRef, modelRef, rotationResetRef }: { levelsRef: MutableRefObject<ModelYLevels | null>; keyLightRef: MutableRefObject<THREE.DirectionalLight | null>; modelRef: MutableRefObject<THREE.Group | null>; rotationResetRef: MutableRefObject<boolean> }) {
   return <>
-    <color attach="background" args={[CAMERA_CONFIG.background]} /><fog attach="fog" args={[CAMERA_CONFIG.background, CAMERA_CONFIG.fogNear, CAMERA_CONFIG.fogFar]} />
+    <fog attach="fog" args={[CAMERA_CONFIG.background, CAMERA_CONFIG.fogNear, CAMERA_CONFIG.fogFar]} />
     <hemisphereLight args={["#e1eadc", "#26352c", CAMERA_CONFIG.hemisphereLight]} />
     <directionalLight ref={keyLightRef} position={[-3, 6, 6]} intensity={CAMERA_CONFIG.keyLight} color="#fff1dc" />
     <pointLight position={[0, 3.5, 5]} intensity={CAMERA_CONFIG.fillLight} distance={12} color="#e3eddb" />
     <pointLight position={[3, 3.4, -3.2]} intensity={CAMERA_CONFIG.greenRimLight} distance={12} color="#6fbd8a" />
-    <mesh position={[0, 2.05, -1.25]}><circleGeometry args={[2.7, 96]} /><meshBasicMaterial color="#244a34" transparent opacity={0.23} depthWrite={false} /></mesh>
-    <mesh position={[0, 2.05, -1.2]}><ringGeometry args={[2.48, 2.505, 128]} /><meshBasicMaterial ref={ringRef} color="#83bc82" transparent opacity={0.34} depthWrite={false} /></mesh>
-    <ModelRig levelsRef={levelsRef} modelRef={modelRef} />
+    <ModelRig levelsRef={levelsRef} modelRef={modelRef} rotationResetRef={rotationResetRef} />
     <Environment preset="studio" />
   </>;
 }
 
-export default function BodyScene({ progressRef }: BodySceneProps) {
+export default function BodyScene({ progressRef, controlsRef, backToTopRef }: BodySceneProps) {
   const levelsRef = useRef<ModelYLevels | null>(null);
   const keyLightRef = useRef<THREE.DirectionalLight | null>(null);
-  const ringRef = useRef<THREE.MeshBasicMaterial | null>(null);
   const modelRef = useRef<THREE.Group | null>(null);
-  return <Canvas className="body-scene-canvas" dpr={[1, 1.5]} camera={{ position: [0, 2, 11.5], fov: CAMERA_CONFIG.cameraFov, near: 0.1, far: 50 }} gl={{ antialias: true, alpha: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: CAMERA_CONFIG.exposure }}>
+  const rotationResetRef = useRef(false);
+  return <Canvas className="body-scene-canvas" style={{ background: "transparent" }} dpr={[1, 1.5]} camera={{ position: [0, 2, 11.5], fov: CAMERA_CONFIG.cameraFov, near: 0.1, far: 50 }} gl={{ antialias: true, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: CAMERA_CONFIG.exposure }}>
     <Suspense fallback={<LoadingScreen />}><ScrollControls pages={CAMERA_CONFIG.pages} damping={CAMERA_CONFIG.scrollDamping} style={{ touchAction: "pan-y", overscrollBehavior: "contain" }}>
-      <LightsAndModel levelsRef={levelsRef} keyLightRef={keyLightRef} ringRef={ringRef} modelRef={modelRef} />
-      <SceneCamera levelsRef={levelsRef} /><FinaleEffects keyLightRef={keyLightRef} ringRef={ringRef} modelRef={modelRef} /><StoryPages /><ZoneProgress progressRef={progressRef} />
+      <LightsAndModel levelsRef={levelsRef} keyLightRef={keyLightRef} modelRef={modelRef} rotationResetRef={rotationResetRef} />
+      <SceneCamera levelsRef={levelsRef} /><FinaleEffects keyLightRef={keyLightRef} modelRef={modelRef} /><StoryPages /><ScrollOverlays rotationResetRef={rotationResetRef} controlsRef={controlsRef} backToTopRef={backToTopRef} /><ZoneProgress progressRef={progressRef} />
     </ScrollControls></Suspense>
   </Canvas>;
 }

@@ -151,6 +151,14 @@
 - Added horizontal-only pointer rotation with an invisible raycastable body hit area, axis locking so vertical touch gestures continue scrolling, damped motion, decaying inertia, cursor feedback, and shortest-path recentering after five idle seconds.
 - Files changed: `src/components/BodyScene.tsx`, `init.readme`.
 
+### Transparent anatomy scene, finale pull-back, and shared back-to-top control
+
+- Removed the hit-area box from the rotating model and replaced it with a sibling vertical cylinder. It is raycastable but has opacity 0, color/depth writes disabled, depth testing disabled, and render order -1. The old Three.js ring is now a CSS ring behind the transparent Canvas.
+- Made the Canvas alpha-transparent and removed the scene background color. Kept the dark green page background, while placing story HTML and UI layers above the Canvas.
+- Added the post-legs camera return from feet at t=0.80 to the shared hero y/distance at t=0.98, then hold through t=1. The pull-back occupies the last scroll page; the finale card fades in near the restored full-body view and stays fixed through the end. The finale progress dot activates when the pull-back starts.
+- Added an accessible floating Back to top pill, visible after the head section. It shares the finale card’s scroll-to-top action and resets model rotation to front-facing.
+- Files changed: `src/components/BodyScene.tsx`, `src/app/page.tsx`, `src/app/globals.css`, `init.readme`.
+
 ## Verification
 
 - `npm run build` completed successfully after the 3D body atlas implementation (Next.js compile, lint, type validation, and static page generation passed). The built app also served `/models/human.glb` with HTTP 200.

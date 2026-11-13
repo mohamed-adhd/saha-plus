@@ -8,10 +8,14 @@ const BodyScene = dynamic(() => import("../components/BodyScene"), {
   loading: () => <div className="body-scene-startup" role="status">Loading Saha Plus body atlas…</div>,
 });
 
+type BodySceneControls = { goToTop: () => void };
+
 export default function Home() {
   const panelRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const bodyProgressRef = useRef<HTMLElement>(null);
+  const bodyBackTopRef = useRef<HTMLButtonElement>(null);
+  const bodySceneControlsRef = useRef<BodySceneControls | null>(null);
   const [registering, setRegistering] = useState(false);
   const [enteredHome, setEnteredHome] = useState(false);
   const [panelMotion, setPanelMotion] = useState(false);
@@ -161,7 +165,11 @@ export default function Home() {
           <a data-body-zone href="#legs-strength" aria-label="Go to Legs and Strength"><i aria-hidden="true"/><span>LEGS</span></a>
           <a data-body-zone href="#finale" aria-label="Go to Finale"><i aria-hidden="true"/><span>FINALE</span></a>
         </nav>
-        <BodyScene progressRef={bodyProgressRef} />
+        <div className="body-atlas-ring" aria-hidden="true" />
+        <BodyScene progressRef={bodyProgressRef} controlsRef={bodySceneControlsRef} backToTopRef={bodyBackTopRef} />
+        <button ref={bodyBackTopRef} className="body-back-top" type="button" aria-label="Back to top" tabIndex={-1} onClick={() => bodySceneControlsRef.current?.goToTop()}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" /></svg><span>Back to top</span>
+        </button>
       </main>
     );
   }
