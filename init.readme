@@ -68,6 +68,13 @@
 - Kept the plus rendering and styling unchanged.
 - Files changed: `src/app/page.tsx`, `src/app/globals.css`.
 
+### Frontend quality pass
+
+- Applied the bundled Geist font across the interface and tightened shared auth-form sizing, focus, and overflow behavior.
+- Updated page title and description from the Next.js starter defaults.
+- Left the plus canvas implementation and panel appearance unchanged.
+- Files changed: `src/app/globals.css`, `src/app/layout.tsx`.
+
 ## Verification
 
 - `npm run build` was started; record the final result here when available.

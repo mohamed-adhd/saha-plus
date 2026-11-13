@@ -5,7 +5,7 @@
 :root { --ink: #183128; --muted: #738178; --green: #276747; --line: #dce6dd; }
 * { box-sizing: border-box; }
 html, body { min-height: 100%; }
-body { margin: 0; color: var(--ink); background: #f7f9f6; font-family: Arial, Helvetica, sans-serif; }
+body { margin: 0; color: var(--ink); background: #f7f9f6; font-family: var(--font-geist-sans), sans-serif; }
 a { color: inherit; text-decoration: none; }
 .login-shell { min-height: 100svh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); overflow: hidden; background: #fff; }
 .welcome-panel { min-width: 0; min-height: 100svh; position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; padding: 42px 54px 32px; color: #f4f8f1; background: #245a3c; transition: transform 780ms cubic-bezier(.22,.78,.22,1), filter 780ms cubic-bezier(.22,.78,.22,1); will-change: transform, filter; }
@@ -32,13 +32,13 @@ a { color: inherit; text-decoration: none; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #608c61; box-shadow: 0 0 0 4px rgba(96,140,97,.12); }
 .form-top a, .password-label a { color: var(--green); font-size: 12px; font-weight: 600; letter-spacing: 0; text-underline-offset: 3px; }
 .form-content { width: min(420px, 100%); margin: auto; padding: 38px 0; }
-.auth-view { position: absolute; left: 50%; top: 50%; max-height: calc(100% - 150px); overflow-y: auto; transform: translate(-50%, calc(-50% + 12px)); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 360ms ease, transform 480ms cubic-bezier(.2,.75,.25,1), visibility 0s linear 480ms; }
+.auth-view { position: absolute; left: 50%; top: 50%; max-height: calc(100% - 150px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #b9c9b6 transparent; transform: translate(-50%, calc(-50% + 12px)); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 360ms ease, transform 480ms cubic-bezier(.2,.75,.25,1), visibility 0s linear 480ms; }
 .auth-view.is-visible { transform: translate(-50%, -50%); opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 430ms ease 220ms, transform 540ms cubic-bezier(.2,.75,.25,1) 160ms, visibility 0s; }
 .register-view { width: min(420px, calc(100% - 40px)); }
 .login-view { width: min(420px, calc(100% - 40px)); }
 .register-field-label { margin-top: 17px; }
 .mobile-brand { display: none; }
-.welcome-note { display: flex; align-items: center; gap: 10px; margin-bottom: 26px; color: #71816d; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; }
+.welcome-note { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; color: #71816d; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; }
 .note-icon { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid #cbd8c5; border-radius: 50%; color: #648363; font-size: 15px; }
 .note-rule { width: 32px; height: 1px; margin-left: 2px; background: #b6c8b2; }
 .form-eyebrow { color: #648363; }
@@ -46,9 +46,9 @@ a { color: inherit; text-decoration: none; }
 .form-content h2 em { color: #668563; font-weight: 400; }
 .form-intro { max-width: 340px; margin: 0 0 31px; color: #657368; font-size: 14px; line-height: 1.7; }
 form { display: flex; flex-direction: column; }
-.form-panel form > label, .password-label label { margin-bottom: 8px; color: #34483b; font-size: 12px; font-weight: 700; }
+.form-panel form > label, .password-label label { margin-bottom: 8px; color: #34483b; font-size: 12px; font-weight: 650; }
 .form-panel form > label > span { margin-left: 5px; color: #89968b; font-size: 8px; font-weight: 600; letter-spacing: .8px; }
-.form-panel form input[type="email"], .form-panel form input[type="password"], .form-panel form input[type="text"] { height: 51px; width: 100%; padding: 0 15px; border: 1px solid #d0dbce; border-radius: 5px; outline: none; color: var(--ink); background: rgba(255,255,255,.78); font: inherit; font-size: 13px; transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease; }
+.form-panel form input[type="email"], .form-panel form input[type="password"], .form-panel form input[type="text"] { height: 52px; width: 100%; padding: 0 15px; border: 1px solid #cbd8ca; border-radius: 6px; outline: none; color: var(--ink); background: rgba(255,255,255,.78); font: inherit; font-size: 13px; transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease; }
 .form-panel form input[type="email"]:hover, .form-panel form input[type="password"]:hover, .form-panel form input[type="text"]:hover { border-color: #a9bcae; }
 .form-panel form input[type="email"]:focus, .form-panel form input[type="password"]:focus, .form-panel form input[type="text"]:focus { border-color: #397650; background: #fff; box-shadow: 0 0 0 3px rgba(57,118,80,.12); }
 .form-panel form input::placeholder { color: #98a49b; }
@@ -56,7 +56,7 @@ form { display: flex; flex-direction: column; }
 .password-label label { margin: 0; }
 .remember { display: flex; align-items: center; gap: 9px; margin: 16px 0 21px; color: #59685e; font-size: 12px; cursor: pointer; }
 .remember input { width: 16px; height: 16px; margin: 0; accent-color: var(--green); }
-.form-panel form button { min-height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border: 1px solid #2f6949; border-radius: 5px; color: #fff; background: #356e4d; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: background 150ms ease, border-color 150ms ease, transform 150ms ease; }
+.form-panel form button { min-height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border: 1px solid #2f6949; border-radius: 6px; color: #fff; background: #356e4d; font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; transition: background 150ms ease, border-color 150ms ease, transform 150ms ease; }
 .form-panel form button:hover { border-color: #1d4e32; background: #1d4e32; }
 .form-panel form button:active { transform: translateY(1px); }
 .form-panel :where(a, button, input):focus-visible { outline: 3px solid rgba(57,118,80,.32); outline-offset: 3px; }
