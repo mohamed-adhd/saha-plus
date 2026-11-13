@@ -136,6 +136,14 @@
 - Dynamically imports the client-only scene. The model remains static while only the camera follows scroll.
 - Files changed: `package.json`, `package-lock.json`, `public/models/human.glb`, `src/app/page.tsx`, `src/app/globals.css`, `src/components/BodyScene.tsx`, `init.readme`.
 
+### Bounding-box camera keyframes, leg descent, and finale
+
+- Replaced the camera interpolation with smooth keyframes whose head, chest, core, and foot targets are computed from the fitted model height (93%, 72%, 52%, and 3.5%). The close head framing uses a narrower FOV; after the head keyframe, camera distance only stays level or decreases.
+- Held the chest framing at 4.7 units and the core/leg framing at 4.15 units, carrying the camera to the feet without a leg-section zoom out. Changed the final chapter to a FINALE card with dashboard and smooth back-to-top actions; there is no separate feet chapter.
+- Added hemisphere and frontal fill lighting, studio environment lighting at 0.4 material environment intensity, a dimmed finale state, and no-shadow rendering. Removed the embedded JPEG normal map, kept vertex colors, enforced FrontSide materials, and computed normals only when absent.
+- Added runtime mesh diagnostics and bounding-box landmark logs. The three named body meshes are retained; none was hidden because the GLB has no explicit redundant mesh naming and visual overlap cannot be established from its geometry metadata alone.
+- Files changed: `src/components/BodyScene.tsx`, `src/app/page.tsx`, `src/app/globals.css`, `init.readme`.
+
 ## Verification
 
 - `npm run build` completed successfully after the 3D body atlas implementation (Next.js compile, lint, type validation, and static page generation passed). The built app also served `/models/human.glb` with HTTP 200.

@@ -150,7 +150,7 @@ export default function Home() {
             <a className="rail-link" href="#chest-heart" aria-label="Chest and heart" title="Chest and heart"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21S3 16 3 9.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 9 1.5C21 16 12 21 12 21Z"/><path d="M4 12h4l2-3 3 6 2-3h5"/></svg><span>Chest and heart</span></a>
             <a className="rail-link" href="#core-digestion" aria-label="Core and digestion" title="Core and digestion"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3c2 2 1 4 0 6s-2 5 1 7 6 1 7-2-1-4-1-6 2-4 3-5M8 3h10M8 20h9"/><path d="M10 11h4M10 14h4"/></svg><span>Core and digestion</span></a>
             <a className="rail-link" href="#legs-strength" aria-label="Legs and strength" title="Legs and strength"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v7l2 4-2 7M16 3v7l-2 4 2 7M8 10h8M8 14h8"/></svg><span>Legs and strength</span></a>
-            <a className="rail-link" href="#feet-mobility" aria-label="Feet and mobility" title="Feet and mobility"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4c0 5-1 7-2 10s1 6 5 6h8c2 0 3-1 3-2s-1-2-3-2h-4c-2 0-3-2-3-4V4"/><path d="M14 5h2M14 8h2M14 11h2"/></svg><span>Feet and mobility</span></a>
+            <a className="rail-link" href="#finale" aria-label="Finale" title="Finale"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.2 5.1L20 10l-4.2 3.5L17 19l-5-3-5 3 1.2-5.5L4 10l5.8-1.9L12 3Z"/><path d="m19 3 .8 1.7L22 5l-2.2.3L19 7l-.8-1.7L16 5l2.2-.3L19 3Z"/></svg><span>Finale</span></a>
           </nav>
           <button className="rail-link rail-signout" type="button" aria-label="Sign out" title="Sign out" onClick={() => setEnteredHome(false)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10M14 8l4 4-4 4M8 12h10"/></svg><span>Sign out</span></button>
         </aside>
@@ -159,7 +159,7 @@ export default function Home() {
           <a data-body-zone href="#chest-heart" aria-label="Go to Chest and Heart"><i aria-hidden="true"/><span>CHEST</span></a>
           <a data-body-zone href="#core-digestion" aria-label="Go to Core and Digestion"><i aria-hidden="true"/><span>CORE</span></a>
           <a data-body-zone href="#legs-strength" aria-label="Go to Legs and Strength"><i aria-hidden="true"/><span>LEGS</span></a>
-          <a data-body-zone href="#feet-mobility" aria-label="Go to Feet and Mobility"><i aria-hidden="true"/><span>FEET</span></a>
+          <a data-body-zone href="#finale" aria-label="Go to Finale"><i aria-hidden="true"/><span>FINALE</span></a>
         </nav>
         <BodyScene progressRef={bodyProgressRef} />
       </main>

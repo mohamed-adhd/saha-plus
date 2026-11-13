@@ -162,3 +162,18 @@ form { display: flex; flex-direction: column; }
 @media (max-width: 430px) { .welcome-panel { min-height: 220px; } .form-panel { min-height: calc(100svh - 220px); } .welcome-copy p { max-width: 300px; } .eyebrow { font-size: 9px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }
 @media (prefers-reduced-motion: reduce) { .welcome-panel, .form-panel, .auth-view, .auth-view.is-visible, .plus-canvas.signs-in-motion { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+
+.body-finale { align-items: center; justify-content: center; padding: 0 24px; }
+.finale-card { width: min(560px, calc(100vw - 160px)); padding: clamp(26px, 4vw, 48px); border: 1px solid rgba(190,218,174,.26); border-radius: 20px; background: linear-gradient(145deg, rgba(18,42,29,.9), rgba(12,27,21,.78)); box-shadow: 0 24px 100px rgba(0,0,0,.26), 0 0 80px rgba(115,170,121,.1); backdrop-filter: blur(16px); text-align: center; }
+.finale-card .body-zone-number { justify-content: center; }
+.finale-card h2 { margin: 25px 0 14px; color: #f0f4eb; font-size: clamp(36px, 5vw, 58px); font-weight: 350; line-height: 1.02; letter-spacing: -.065em; }
+.finale-card h2 em { color: #b8d4a6; font-weight: 350; }
+.finale-card > p { margin: 0; color: rgba(226,237,220,.76); font-size: 14px; line-height: 1.7; }
+.finale-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 11px; margin-top: 28px; }
+.finale-primary, .finale-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 15px; min-height: 46px; padding: 0 19px; border-radius: 999px; font: inherit; font-size: 12px; cursor: pointer; transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease; }
+.finale-primary { border: 1px solid #c2d8ad; color: #183128; background: #c2d8ad; box-shadow: 0 0 26px rgba(162,200,145,.2); }
+.finale-secondary { border: 1px solid rgba(190,218,174,.32); color: #e2edda; background: rgba(255,255,255,.025); }
+.finale-primary:hover, .finale-secondary:hover { transform: translateY(-2px); }
+.finale-primary:focus-visible, .finale-secondary:focus-visible { outline: 2px solid #d7e9cb; outline-offset: 4px; }
+@media (max-width: 760px) { .body-finale { padding: 0 14px 0 72px; } .finale-card { width: 100%; padding: 27px 20px; } .finale-card h2 { font-size: clamp(34px, 10vw, 48px); } .finale-card > p { font-size: 12px; } .finale-actions { gap: 8px; margin-top: 21px; } .finale-primary, .finale-secondary { min-height: 42px; padding: 0 14px; font-size: 10px; } }
+@media (prefers-reduced-motion: reduce) { .finale-primary, .finale-secondary { transition: none; } }
